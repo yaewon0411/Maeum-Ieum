@@ -6,6 +6,7 @@ import com.develokit.maeum_ieum.domain.user.caregiver.Caregiver;
 import com.develokit.maeum_ieum.domain.user.elderly.Elderly;
 import com.develokit.maeum_ieum.util.CustomUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RespDto {
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(description = "요양사 회원가입 시 유저네임 중복 체크 여부 반환 DTO")
+    public static class CaregiverDuplicatedRespDto {
+        @Schema(description = "검사한 사용자 아이디")
+        private String username;
+
+        @Schema(description = "아이디 중복 여부")
+        private boolean isDuplicated;
+    }
 
     @Getter
     @NoArgsConstructor

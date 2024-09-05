@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,11 @@ public class CaregiverController implements CaregiverControllerDocs {
     private final CaregiverService caregiverService;
     private final ElderlyService elderlyService;
     private final AssistantService assistantService;
+
+    @GetMapping("/check-username/{username}")
+    public ResponseEntity<?> checkUsername(@PathVariable(name = "username") String username) {
+        return new ResponseEntity<>(ApiUtil.success(caregiverService.validateDuplicatedCaregiver(username)),HttpStatus.OK);
+    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> join(@Valid @ModelAttribute JoinReqDto joinReqDto, BindingResult bindingResult){

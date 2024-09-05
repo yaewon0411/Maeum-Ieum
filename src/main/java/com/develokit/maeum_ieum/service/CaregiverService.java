@@ -53,6 +53,18 @@ public class CaregiverService {
 
     private final Logger log = LoggerFactory.getLogger(CaregiverService.class);
 
+    //전체 데이터 서버에 던지기 전에 아이디 중복인지 검사
+    public CaregiverDuplicatedRespDto validateDuplicatedCaregiver(String username){
+        boolean isExist = careGiverRepository.findByUsername(username).isPresent();
+        if (isExist) {
+            return new CaregiverDuplicatedRespDto(username, true);
+        }
+        return new CaregiverDuplicatedRespDto(username, false);
+
+    }
+
+
+
     @Transactional
     public JoinRespDto join(JoinReqDto joinReqDto){ //회원가입
 
