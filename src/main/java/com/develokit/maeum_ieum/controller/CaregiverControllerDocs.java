@@ -84,7 +84,10 @@ public interface CaregiverControllerDocs {
             @ApiResponse(responseCode = "401", description = "토큰 기간 만료", content = @Content(schema = @Schema(implementation = CaregiverMainRespDto.class), mediaType = "application/json")),
             @ApiResponse(responseCode = "401", description = "Authorization 헤더 재확인 바람", content = @Content(schema = @Schema(implementation = CaregiverMainRespDto.class), mediaType = "application/json")),
             @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰 서명", content = @Content(schema = @Schema(implementation = CaregiverMainRespDto.class), mediaType = "application/json"))
-    })    ResponseEntity<?> getCaregiverMainInfo(@AuthenticationPrincipal LoginUser loginUser);
+    })ResponseEntity<?> getCaregiverMainInfo(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "10") int limit,
+            @AuthenticationPrincipal LoginUser loginUser);
 
     @Operation(summary = "마이 페이지 수정 (이미지 제외) ", description = "마이 페이지 수정 기능: jwt 토큰 사용")
     @ApiResponses( value = {

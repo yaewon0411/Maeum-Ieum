@@ -51,8 +51,11 @@ public class CaregiverController implements CaregiverControllerDocs {
 
     @RequireAuth
     @GetMapping
-    public ResponseEntity<?> getCaregiverMainInfo(@AuthenticationPrincipal LoginUser loginUser){
-        return new ResponseEntity<>(ApiUtil.success(caregiverService.getCaregiverMainInfo(loginUser.getUsername())),HttpStatus.OK);
+    public ResponseEntity<?> getCaregiverMainInfo(
+            @RequestParam(name = "cursor",required = false) String cursor,
+            @RequestParam(name = "limit", defaultValue = "10") int limit,
+            @AuthenticationPrincipal LoginUser loginUser){
+        return new ResponseEntity<>(ApiUtil.success(caregiverService.getCaregiverMainInfo(loginUser.getUsername(), cursor, limit)),HttpStatus.OK);
     }
 
     @RequireAuth
