@@ -150,10 +150,12 @@ public class RespDto {
         private String caregiverOrganization;
         private String caregiverImgUrl;
         private String elderlyName;
-        private LocalDate elderlyBirthdate;
+        private String elderlyBirthdate;
         private String elderlyImgUrl;
         private Long lastChatDate; //마지막 대화 'n시간 전'
         private int age;
+        private Long assistantId; //DB 어시스턴트 아이디
+        private String openAiAssistantId; //openAI 어시스턴트 아이디
         public ElderlyMainRespDto(Caregiver caregiver, Elderly elderly){
             this.caregiverContact = caregiver.getContact();
             this.caregiverImgUrl = caregiver.getImgUrl();
@@ -161,9 +163,11 @@ public class RespDto {
             this.caregiverName = caregiver.getName();
             this.elderlyName = elderly.getName();
             this.elderlyImgUrl = elderly.getImgUrl();
-            this.elderlyBirthdate = elderly.getBirthDate();
-            this.age = CustomUtil.calculateAge(elderlyBirthdate);
+            this.elderlyBirthdate = CustomUtil.BirthDateToString(elderly.getBirthDate());
+            this.age = CustomUtil.calculateAge(elderly.getBirthDate());
             this.lastChatDate = CustomUtil.calculateHoursAgo(elderly.getLastChatTime());
+            this.assistantId = elderly.getAssistant().getId();
+            this.openAiAssistantId = elderly.getAssistant().getOpenAiAssistantId();
         }
 
     }

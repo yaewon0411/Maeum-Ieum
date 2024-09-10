@@ -114,10 +114,19 @@ public class ElderlyService {
                         () -> new CustomApiException("등록되지 않은 노인 사용자 입니다", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
                 );
 
+        //노인 사용자의 어시스턴트가 아니면
+        if(elderlyPS.getAssistant() != null)
+            if(!elderlyPS.getAssistant().getId().equals(assistantId))
+                throw new CustomApiException("해당 사용자의 AI 어시스턴트가 아닙니다", HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN);
+
+        //노인 사용자가 어시스턴트 없으면
+        if(elderlyPS.getAssistant() == null)
+            throw new CustomApiException("등록된 AI 어시스턴트가 없습니다", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND);
+
         //연결된 요양사 찾기
         Caregiver caregiverPS = careGiverRepository.findById(elderlyPS.getCaregiver().getId())
                 .orElseThrow(
-                        () -> new CustomApiException("등록되지 않은 요양사 사용자 입니다",HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND )
+                        () -> new CustomApiException("관리하는 요양사 사용자가 존재하지 않습니다",HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND )
                 );
 
         return new ElderlyMainRespDto(caregiverPS, elderlyPS);

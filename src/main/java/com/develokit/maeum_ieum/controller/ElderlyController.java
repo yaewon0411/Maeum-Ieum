@@ -13,6 +13,7 @@ import com.develokit.maeum_ieum.service.MessageService;
 import com.develokit.maeum_ieum.util.ApiUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -33,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static com.develokit.maeum_ieum.dto.assistant.ReqDto.*;
 import static com.develokit.maeum_ieum.dto.message.RespDto.*;
 import static com.develokit.maeum_ieum.dto.openAi.audio.ReqDto.*;
 
@@ -48,9 +50,10 @@ public class ElderlyController {
 
     //접속 코드 확인
     @GetMapping
-    public ResponseEntity<?> verifyAccessCode(@RequestParam(name = "access-code")String accessCode){
-        return new ResponseEntity<>(ApiUtil.success(assistantService.verifyAccessCode(accessCode)),HttpStatus.OK);
+    public ResponseEntity<?> verifyAccessCode(@RequestBody VerifyAccessCodeReqDto verifyAccessCodeReqDto){
+        return new ResponseEntity<>(ApiUtil.success(assistantService.verifyAccessCode(verifyAccessCodeReqDto)),HttpStatus.OK);
     }
+
 
     //메인 홈
     @GetMapping("/{elderlyId}/assistants/{assistantId}")
