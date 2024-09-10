@@ -73,7 +73,7 @@ public interface CaregiverControllerDocs {
             @ApiResponse(responseCode = "401", description = "Authorization 헤더 재확인 바람", content = @Content(schema = @Schema(implementation = ElderlyCreateRespDto.class), mediaType = "application/json")),
             @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰 서명", content = @Content(schema = @Schema(implementation = ElderlyCreateRespDto.class), mediaType = "application/json"))
     })
-    ResponseEntity<ApiResult<ElderlyCreateRespDto>> createElderly(@Valid @RequestBody ElderlyCreateReqDto elderlyCreateReqDto,
+    ResponseEntity<?> createElderly(@Valid @ModelAttribute ElderlyCreateReqDto elderlyCreateReqDto,
                                     BindingResult bindingResult,
                                     @AuthenticationPrincipal LoginUser loginUser
     );

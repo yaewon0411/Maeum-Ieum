@@ -19,6 +19,8 @@ import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +46,7 @@ public class CaregiverController implements CaregiverControllerDocs {
     private final CaregiverService caregiverService;
     private final ElderlyService elderlyService;
     private final AssistantService assistantService;
+    private final Logger log = LoggerFactory.getLogger(CaregiverController.class);
 
     @GetMapping("/check-username/{username}")
     public ResponseEntity<?> checkUsername(@PathVariable(name = "username") String username) {
@@ -65,11 +68,10 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     @RequireAuth
-    @PostMapping("/elderlys")
-    public ResponseEntity<ApiResult<ElderlyCreateRespDto>> createElderly(@Valid @RequestBody ElderlyCreateReqDto elderlyCreateReqDto,
+    @PostMapping(value = "/elderlys", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createElderly(@Valid @ModelAttribute ElderlyCreateReqDto elderlyCreateReqDto,
                                                                          BindingResult bindingResult,
                                                                          @AuthenticationPrincipal LoginUser loginUser) {
-
         return new ResponseEntity<>(ApiUtil.success(elderlyService.createElderly(elderlyCreateReqDto, loginUser.getCaregiver().getUsername())), HttpStatus.CREATED);
     }
     @RequireAuth
