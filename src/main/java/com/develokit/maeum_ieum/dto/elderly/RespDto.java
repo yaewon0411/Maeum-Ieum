@@ -41,7 +41,7 @@ public class RespDto {
             this.emergencyName = elderly.getEmergencyContactInfo().getEmergencyName();
             this.emergencyContact = elderly.getEmergencyContactInfo().getEmergencyContact();
             this.relationship = elderly.getEmergencyContactInfo().getRelationship();
-            this.assistantName = elderly.getAssistant().getName();
+            this.assistantName = elderly.getAssistant()==null?null:elderly.getAssistant().getName();
             this.reportDay = elderly.getReportDay().toString();
         }
 

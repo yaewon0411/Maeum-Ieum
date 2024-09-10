@@ -170,17 +170,29 @@ public class ElderlyService {
 
     //TODO 요양사 화면에서 노인 기본 정보 수정 - 이미지 제외
     @Transactional
-    public ElderlyModifyRespDto modifyElderlyInfo(ElderlyModifyReqDto elderlyModifyReqDto, Long elderlyId){
+    public ElderlyModifyRespDto modifyElderlyInfo(ElderlyModifyReqDto elderlyModifyReqDto, Long elderlyId, String username){
 
+        Caregiver caregiverPS = careGiverRepository.findByUsername(username).orElseThrow(
+                () -> new CustomApiException("등록되지 않은 요양사 사용자입니다", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
+        );
 
         Elderly elderlyPS = elderlyRepository.findById(elderlyId).orElseThrow(
                 () -> new CustomApiException("등록되지 않은 노인 사용자입니다", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
         );
+
+        //해당 요양사가 관리하는 노인 사용자가 맞는지 검증
+        if(!caregiverPS.getElderlyList().contains(elderlyPS))
+            throw new CustomApiException("해당 요양사 사용자의 관리 대상이 아닙니다", HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN);
+
+
         //노인 기본 정보 수정
         elderlyPS.updateElderlyInfo(elderlyModifyReqDto);
-        Assistant assistantPS = elderlyPS.getAssistant();
+
         //어시스턴트 이름 수정
-        if(assistantPS != null) assistantPS.modifyAssistantName(elderlyModifyReqDto.getAssistantName());
+        if(elderlyModifyReqDto.getAssistantName() != null) {
+            Assistant assistantPS = elderlyPS.getAssistant();
+            assistantPS.modifyAssistantName(elderlyModifyReqDto.getAssistantName());
+        }
 
         return new ElderlyModifyRespDto(elderlyPS);
     }

@@ -72,13 +72,14 @@ class CaregiverControllerTest extends DummyObject {
 
         //when
         ResultActions resultActions = mvc.perform(
-                post("/caregivers/elderlys")
-                        .content(requestBody)
+                multipart("/caregivers/elderlys")
+                        .param("name",elderlyCreateReqDto.getName())
+                        .param("contact",elderlyCreateReqDto.getContact())
                         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+
         );
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("responseBody = " + responseBody);
-
 
         //then
 
