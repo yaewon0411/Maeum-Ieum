@@ -42,7 +42,7 @@ import static com.develokit.maeum_ieum.dto.openAi.audio.ReqDto.*;
 @RequestMapping("/elderlys")
 @RequiredArgsConstructor
 @Tag(name = "노인 사용자 API", description = "노인 사용자가 호출하는 API 목록")
-public class ElderlyController {
+public class ElderlyController implements ElderlyControllerDocs {
 
     private final ElderlyService elderlyService;
     private final MessageService messageService;
@@ -71,7 +71,7 @@ public class ElderlyController {
     @PostMapping("/{elderlyId}/stream-message")
     public Flux<CreateStreamMessageRespDto> createStreamMessage(
             @PathVariable(name = "elderlyId") Long elderlyId,
-            @RequestBody CreateStreamMessageReqDto createStreamMessageReqDto,
+            @RequestBody @Valid CreateStreamMessageReqDto createStreamMessageReqDto,
                                                                 BindingResult bindingResult){
         elderlyService.updateLastChatDate(elderlyId);
         return messageService.getStreamMessage(createStreamMessageReqDto, elderlyId);

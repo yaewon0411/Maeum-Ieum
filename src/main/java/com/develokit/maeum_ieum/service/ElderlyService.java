@@ -139,7 +139,7 @@ public class ElderlyService {
         //어시스턴트 검증
         Assistant assistantPS = assistantRepository.findById(assistantId)
                 .orElseThrow(
-                        () -> new CustomApiException("존재하지 않는 AI Assistant 입니다",HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
+                        () -> new CustomApiException("등록된 AI 어시스턴트가 없습니다",HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
                 );
 
         //사용자 검증
@@ -191,7 +191,7 @@ public class ElderlyService {
 
         //해당 요양사가 관리하는 노인 사용자가 맞는지 검증
         if(!caregiverPS.getElderlyList().contains(elderlyPS))
-            throw new CustomApiException("해당 요양사 사용자의 관리 대상이 아닙니다", HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN);
+            throw new CustomApiException("해당 사용자의 관리 대상이 아닙니다", HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN);
 
 
         //노인 기본 정보 수정

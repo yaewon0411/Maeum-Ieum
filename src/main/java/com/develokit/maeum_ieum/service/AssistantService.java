@@ -39,7 +39,7 @@ public class AssistantService {
                 );
 
         if(assistantPS.getElderly() == null)
-            throw new CustomApiException("사용할 수 있는 AI 어시스턴트가 아닙니다", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND);
+            throw new CustomApiException("AI 어시스턴트가 존재하지 않습니다", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND);
 
         return new VerifyAccessCodeRespDto(assistantPS);
     }
