@@ -147,7 +147,7 @@ public class CaregiverService {
                         .responseType(createAssistantReqDto.getResponseType())
                         .personality(createAssistantReqDto.getPersonality())
                         .forbiddenTopic(createAssistantReqDto.getForbiddenTopic())
-                        .accessCode(accessCodeGenerator.generateEncodedAccessCode())
+                        .accessCode(accessCodeGenerator.generateEncodedAccessCode(elderlyPS.getName()))
                         .openAiInstruction(instructions)
                         .build()
         );
