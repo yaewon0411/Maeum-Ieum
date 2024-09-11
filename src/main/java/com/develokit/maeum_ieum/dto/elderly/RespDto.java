@@ -185,7 +185,7 @@ public class RespDto {
     public static class CheckAssistantInfoRespDto{
         @Schema(description = "스레드 아이디")
         private String threadId;
-        @Schema(description = "어시스턴트 이름")
+        @Schema(description = "AI 어시스턴트 이름")
         private String assistantName;
         @Schema(description = "OpenAI 요청을 위한 openAiAssistantId")
         private String openAiAssistantId;
