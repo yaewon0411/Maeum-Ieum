@@ -19,7 +19,7 @@ public class ReportGenerationScheduler {
 
     private final JobLauncher jobLauncher;
     private final Job weeklyReportGenerationJob;
-    private final Logger log = LoggerFactory.getLogger(ReportProcessor.class);
+    private final Logger log = LoggerFactory.getLogger(ReportGenerationScheduler.class);
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행 (보고서 분석 결과 기록)
     public void runReportGenerationJob() throws Exception {
 

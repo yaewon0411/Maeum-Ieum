@@ -18,7 +18,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     int findByStartDate(@Param(value = "elderly")Elderly elderly, @Param(value = "startDate")LocalDateTime startDate);
 
     @Query("select r from Report r where r.elderly = :elderly order by r.startDate desc limit 1")
-    Optional<Report> findLatestByElderly(@Param("Elderly")Elderly elderly );
+    Optional<Report> findLatestByElderly(@Param("elderly")Elderly elderly );
 
 
     List<Report> findByReportDayAndReportStatus(DayOfWeek reportDay, ReportStatus reportStatus);

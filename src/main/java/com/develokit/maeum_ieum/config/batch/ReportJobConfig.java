@@ -40,13 +40,6 @@ public class ReportJobConfig {
                 .build();
     }
 
-    //보고서 저장
-    @Bean
-    public JpaItemWriter<Report> reportWriter(EntityManagerFactory entityManagerFactory) {
-        JpaItemWriter<Report> writer = new JpaItemWriter<>();
-        writer.setEntityManagerFactory(entityManagerFactory);
-        return writer;
-    }
     //보고서 페이징 크기:100
     @Bean
     public JpaPagingItemReader<Report> reportReader(EntityManagerFactory entityManagerFactory) {
