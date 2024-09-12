@@ -6,6 +6,7 @@ import com.develokit.maeum_ieum.domain.message.Message;
 import com.develokit.maeum_ieum.domain.message.MessageRepository;
 import com.develokit.maeum_ieum.domain.report.Report;
 import com.develokit.maeum_ieum.domain.report.ReportRepository;
+import com.develokit.maeum_ieum.domain.report.ReportStatus;
 import com.develokit.maeum_ieum.domain.user.caregiver.CareGiverRepository;
 import com.develokit.maeum_ieum.domain.user.caregiver.Caregiver;
 import com.develokit.maeum_ieum.domain.user.elderly.Elderly;
@@ -250,7 +251,7 @@ public class ElderlyService {
     }
 
 
-    //보고서 날짜 수정
+    //보고서 날짜 수정 -> 날짜를 수정한 localDateTime을 보고서의 startDate으로 삼아서 빈 보고서 생성
     @Transactional
     public ElderlyReportDayModifyRespDto modifyReportDay(Long elderlyId, ElderlyReportDayModifyReqDto elderlyReportDayModifyReqDto){
         Elderly elderlyPS = elderlyRepository.findById(elderlyId).orElseThrow(
@@ -260,6 +261,21 @@ public class ElderlyService {
 
         elderlyPS.modifyReportDay(DayOfWeek.valueOf(reportDay));
 
+        //보고서 날짜 수정 전에 기록을 위해 생성된 빈 보고서가 있는지 확인
+        Optional<Report> reportOP = reportRepository.findLatestByElderly(elderlyPS);
+        if(reportOP.isEmpty()){ //비어 있으면, 즉 최초로 보고서 생성 날을 지정한 경우이면 바로 보고서 생성
+            Report report = Report.builder()
+                    .reportStatus(ReportStatus.PENDING)
+                    .elderly(elderlyPS)
+                    .startDate(LocalDateTime.now())
+                    .reportDay(DayOfWeek.valueOf(reportDay))
+                    .build();
+
+            reportRepository.save(report);
+        }
+        else{ //보고서가 있다면, 시작 날짜와 발행 요일을 현재 시각과 reportDay로 수정
+            reportOP.get().modifyStartDateAndReportDay(LocalDateTime.now(), DayOfWeek.valueOf(reportDay));
+        }
         return new ElderlyReportDayModifyRespDto(elderlyPS);
     }
 
