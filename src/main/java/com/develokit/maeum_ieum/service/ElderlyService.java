@@ -29,8 +29,10 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -151,6 +153,14 @@ public class ElderlyService {
         if(!assistantPS.hasThread()){ //스레드 없음
             ThreadRespDto threadRespDto = openAiService.createThread();
             assistantPS.attachThread(threadRespDto.getId());
+        }
+        else{ //스레드가 있다면
+            LocalDateTime lastChatTime = elderlyPS.getLastChatTime();
+            //마지막 접근일로부터 30일이 지났는지 검증 -> 지났다면 새로운 스레드 생성
+            if(ChronoUnit.DAYS.between(lastChatTime, LocalDateTime.now()) >= 30){
+                ThreadRespDto threadRespDto = openAiService.createThread();
+                assistantPS.attachThread(threadRespDto.getId());
+            }
         }
 
         return new CheckAssistantInfoRespDto(assistantPS);
