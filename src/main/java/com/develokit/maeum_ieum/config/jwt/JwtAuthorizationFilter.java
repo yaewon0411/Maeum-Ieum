@@ -1,6 +1,8 @@
 package com.develokit.maeum_ieum.config.jwt;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureGenerationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.develokit.maeum_ieum.config.loginUser.LoginUser;
 import com.develokit.maeum_ieum.ex.CustomApiException;
@@ -43,7 +45,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        try {
+
             String header = request.getHeader(JwtVo.HEADER);
             if (header == null || !header.startsWith(JwtVo.TOKEN_PREFIX)) {
                 chain.doFilter(request, response);
@@ -68,20 +70,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             chain.doFilter(request, response);
-        } catch (CustomApiException e) {
-            sendErrorResponse(response, e.getMessage(), e.getCode());
-        } catch (Exception e) {
-            logger.error("JWT 인증 과정에서 에러 발생", e);
-            sendErrorResponse(response, e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
     }
-    private void sendErrorResponse(HttpServletResponse response, String message, int status) throws IOException {
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(status);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writeValueAsString(ApiUtil.error(message, status));
-        response.getWriter().write(jsonResponse);
-    }
+
+
     //    //헤더 검증
     //    private boolean isHeaderVerify(HttpServletRequest request){
     //        try {

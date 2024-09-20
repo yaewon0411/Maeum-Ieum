@@ -48,6 +48,7 @@ public class ReportJobConfig {
     }
 
     //[월간 보고서] : 보고서 페이징 크기 100 TODO 확인 필요
+    //TODO MYSQL에서는 formatdatetime 함수 변경해야 함
     @Bean
     @StepScope
     @Qualifier("monthlyReportReader")
@@ -58,7 +59,7 @@ public class ReportJobConfig {
         return new JpaPagingItemReaderBuilder<Report>()
                 .name("monthlyReportReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("select r from Report r where r.reportType = :reportType and r.reportStatus = :reportStatus and FORMATDATETIME(r.startDate, 'yyyy-MM-dd') = :targetDate")
+                .queryString("select r from Report r where r.reportType = :reportType and r.reportStatus = :reportStatus and formatdatetime(r.startDate, 'yyyy-MM-dd') = :targetDate")
                 .parameterValues(Map.of(
                         "reportType", ReportType.MONTHLY,
                         "reportStatus", ReportStatus.PENDING,
@@ -79,7 +80,7 @@ public class ReportJobConfig {
         return new JpaPagingItemReaderBuilder<Report>()
                 .name("weeklyReportReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT r FROM Report r WHERE r.reportType = :reportType AND r.reportStatus = :reportStatus AND FORMATDATETIME(r.startDate, 'yyyy-MM-dd') = :targetDate")
+                .queryString("SELECT r FROM Report r WHERE r.reportType = :reportType AND r.reportStatus = :reportStatus AND formatdatetime(r.startDate, 'yyyy-MM-dd') = :targetDate")
                 .parameterValues(Map.of(
                         "reportType", ReportType.WEEKLY,
                         "reportStatus", ReportStatus.PENDING,
