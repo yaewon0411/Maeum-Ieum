@@ -25,8 +25,12 @@ public class ReportService {
     private final Logger log = LoggerFactory.getLogger(ReportService.class);
 
     //지표에 따른 보고서 생성하기
+    @Transactional
     public void generateReportContent(Report report){
 
+        //어쩌구저쩌구
+        report.setQualitativeAnalysis("정성적 보고서 분석 결과");
+        report.setQuantitativeAnalysis("정량적 보고서 분석 결과");
 
     }
 
