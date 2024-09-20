@@ -13,6 +13,8 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.NoSuchJobExecutionException;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,26 +53,32 @@ class ReportGenerationSchedulerTest {
     private EntityManager em;
     private LocalDateTime today;
 
+    @Autowired
+    private JobRepository jobRepository;
+
+
     @BeforeEach
     @Transactional
+    @Rollback
     void setUp(){
         //reportRepository.deleteAll();
         today = LocalDateTime.now();
 //        Report report = reportRepository.findById(2L).orElse(null);
 //        report.setStartDate(today.minusWeeks(1));
 
-//        Elderly elderlyC = em.createQuery("select e from Elderly e where e.id = :id", Elderly.class)
-//                .setParameter("id", 2L)
-//                .getSingleResult();
-//
-//        Report oldReport = Report.builder()
-//                .elderly(elderlyC)
-//                .reportType(ReportType.WEEKLY)
-//                .reportStatus(ReportStatus.PENDING)
-//                .startDate(today.minusDays(7))
-//                .build();
-//        reportRepository.save(oldReport);
+        Elderly elderlyC = em.createQuery("select e from Elderly e where e.id = :id", Elderly.class)
+                .setParameter("id", 2L)
+                .getSingleResult();
+
+        Report oldReport = Report.builder()
+                .elderly(elderlyC)
+                .reportType(ReportType.MONTHLY)
+                .reportStatus(ReportStatus.PENDING)
+                .startDate(today.minusMonths(1))
+                .build();
+        reportRepository.save(oldReport);
     }
+
     @Test
     @Rollback
     @Transactional
@@ -127,7 +135,7 @@ class ReportGenerationSchedulerTest {
 
     @Test
     //@Transactional
-    //@Rollback
+    @Rollback
     void testFullReportGenerationJob() throws Exception {
         // 시나리오 3: 유저 C는 일주일 전에 생성된 PENDING 상태의 보고서가 있음 -> 따라서 유저 C는 보고서 분석 작업이 진행되어야 함
 
@@ -137,6 +145,7 @@ class ReportGenerationSchedulerTest {
         // 배치 작업 실행
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("date", todayLocalDate.toString())
+                .addLong("time", System.currentTimeMillis())
                 .toJobParameters();
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
         System.out.println("jobExecution.getExitStatus().getExitCode() = " + jobExecution.getExitStatus().getExitCode());
