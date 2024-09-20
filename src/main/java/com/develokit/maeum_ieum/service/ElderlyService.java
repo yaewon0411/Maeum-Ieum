@@ -206,7 +206,7 @@ public class ElderlyService {
 
         //해당 요양사가 관리하는 노인 사용자가 맞는지 검증
         if(!caregiverPS.getElderlyList().contains(elderlyPS))
-            throw new CustomApiException("해당 사용자의 관리 대상이 아닙니다", HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN);
+            throw new CustomApiException("관리 대상이 아닙니다", HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN);
 
 
         //노인 기본 정보 수정
