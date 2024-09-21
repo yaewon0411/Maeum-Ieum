@@ -8,12 +8,14 @@ import com.develokit.maeum_ieum.service.AssistantService;
 import com.develokit.maeum_ieum.service.CaregiverService;
 import com.develokit.maeum_ieum.service.ElderlyService;
 import com.develokit.maeum_ieum.service.EmergencyRequestService;
+import com.develokit.maeum_ieum.service.report.ReportService;
 import com.develokit.maeum_ieum.util.ApiUtil;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.repository.config.RepositoryNameSpaceHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +38,7 @@ public class CaregiverController implements CaregiverControllerDocs {
     private final ElderlyService elderlyService;
     private final AssistantService assistantService;
     private final EmergencyRequestService emergencyRequestService;
+    private final ReportService reportService;
     private final Logger log = LoggerFactory.getLogger(CaregiverController.class);
 
     @GetMapping("/check-username/{username}")
@@ -48,7 +51,7 @@ public class CaregiverController implements CaregiverControllerDocs {
         return new ResponseEntity<>(ApiUtil.success(caregiverService.join(joinReqDto)), HttpStatus.CREATED);
     }
 
-    @RequireAuth
+
     @GetMapping
     public ResponseEntity<?> getCaregiverMainInfo(
             @RequestParam(name = "cursor",required = false) @Parameter(description = "다음 데이터 조회를 위한 커서 값. 첫 요청 시 null 또는 비워둠. 다음 데이터 요청 시 이전 응답의 nextCursor를 사용") String cursor,
@@ -58,14 +61,13 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     //노인 사용자 생성
-    @RequireAuth
     @PostMapping(value = "/elderlys", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createElderly(@Valid @ModelAttribute ElderlyCreateReqDto elderlyCreateReqDto,
                                                                          BindingResult bindingResult,
                                                                          @AuthenticationPrincipal LoginUser loginUser) {
         return new ResponseEntity<>(ApiUtil.success(elderlyService.createElderly(elderlyCreateReqDto, loginUser.getCaregiver().getUsername())), HttpStatus.CREATED);
     }
-    @RequireAuth
+
     @PostMapping("/elderlys/{elderlyId}/assistants") //AI Assistant 생성
     public ResponseEntity<?> createAssistant(@Valid@RequestBody CreateAssistantReqDto createAssistantReqDto,
                                              @PathVariable(name = "elderlyId")Long elderlyId,
@@ -74,13 +76,13 @@ public class CaregiverController implements CaregiverControllerDocs {
         return new ResponseEntity<>(ApiUtil.success(assistantService.attachAssistantToElderly(createAssistantReqDto, elderlyId, loginUser.getCaregiver().getUsername())),HttpStatus.CREATED);
     }
 
-    @RequireAuth
+
     @GetMapping("/mypage") //내 정보
     public ResponseEntity<?> getCaregiverInfo(@AuthenticationPrincipal LoginUser loginUser){
         return new ResponseEntity<>(ApiUtil.success(caregiverService.caregiverInfo(loginUser.getCaregiver().getUsername())),HttpStatus.OK);
     }
 
-    @RequireAuth
+
     @PatchMapping("/mypage") //마이페이지 수정(이미지 제외)
     public ResponseEntity<?>modifyCaregiverInfo(@Valid@RequestBody CaregiverModifyReqDto caregiverModifyReqDto,
                                                 BindingResult bindingResult,
@@ -89,7 +91,7 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     //마이페이지 이미지 수정
-    @RequireAuth
+
     @PatchMapping(value = "/mypage/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?>modifyCaregiverImg(@RequestParam(value = "img", required = false) MultipartFile img,
                                                @AuthenticationPrincipal LoginUser loginUser){
@@ -97,7 +99,7 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     //노인 기본 정보 수정(이미지 제외)
-    @RequireAuth
+
     @PatchMapping(value = "/elderlys/{elderlyId}")
     public ResponseEntity<?>modifyElderlyInfo(@Valid@RequestBody ElderlyModifyReqDto elderlyModifyReqDto, BindingResult bindingResult, @PathVariable(value = "elderlyId")Long elderlyId
                                               ,@AuthenticationPrincipal LoginUser loginUser){
@@ -105,7 +107,7 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     //노인 기본 정보 이미지 수정
-    @RequireAuth
+
     @PatchMapping(value = "/elderlys/{elderlyId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> modifyElderlyImg(@RequestParam(value = "img", required = false) MultipartFile img,
                                                @PathVariable(name = "elderlyId")Long elderlyId,
@@ -114,7 +116,7 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     //어시스턴트 수정
-    @RequireAuth
+
     @PatchMapping(value = "/elderlys/{elderlyId}/assistants/{assistantId}")
     public ResponseEntity<?> modifyAssistantInfo(@Valid@RequestBody AssistantModifyReqDto assistantModifyReqDto,
                                                  @PathVariable(name = "elderlyId")Long elderlyId,
@@ -126,7 +128,7 @@ public class CaregiverController implements CaregiverControllerDocs {
 
 
     // 어시스턴트 삭제
-    @RequireAuth
+
     @DeleteMapping(value = "/elderlys/{elderlyId}/assistants/{assistantId}")
     public ResponseEntity<?> deleteAssistant(@PathVariable(name = "elderlyId")Long elderlyId,
                                              @PathVariable(name = "assistantId")Long assistantId,
@@ -135,14 +137,14 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     //노인 기본 정보 조회
-    @RequireAuth
+
     @GetMapping("/elderlys/{elderlyId}")
     public ResponseEntity<?> getElderlyInfo(@PathVariable(name = "elderlyId")Long elderlyId, @AuthenticationPrincipal LoginUser loginUser){
         return new ResponseEntity<>(ApiUtil.success(caregiverService.getElderlyInfo(elderlyId, loginUser.getCaregiver().getUsername())), HttpStatus.OK);
     }
 
     //노인 필수 규칙 자동 완성
-    @RequireAuth
+
     @PostMapping("/elderlys/{elderlyId}/assistants/rules/autocomplete")
     public Mono<ResponseEntity<?>> createAutoMandatoryRule(@PathVariable(name = "elderlyId")Long elderlyId,
                                                            @Valid @RequestBody AssistantMandatoryRuleReqDto assistantMandatoryRuleReqDto,
@@ -155,7 +157,7 @@ public class CaregiverController implements CaregiverControllerDocs {
                 );
     }
     //알림 내역 조회
-    @RequireAuth
+
     @GetMapping("/emergency-alerts")
     public ResponseEntity<?> getEmergencyRequestList(@RequestParam(name = "page", defaultValue = "0")int page,
                                                      @RequestParam(name = "size", defaultValue = "10")int size,
@@ -164,7 +166,7 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     //보고서 날짜 수정
-    @RequireAuth
+
     @PatchMapping("/elderlys/{elderlyId}/report")
     public ResponseEntity<?> modifyElderlyReportDay(@PathVariable(name = "elderlyId")Long elderlyId,
                                                     @RequestBody@Valid ElderlyReportDayModifyReqDto elderlyReportDayModifyReqDto,
@@ -173,7 +175,7 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     //어시스턴트 정보 조회
-    @RequireAuth
+
     @GetMapping("/elderlys/{elderlyId}/assistants/{assistantId}")
     public ResponseEntity<?> getAssistantInfo(@PathVariable(name = "elderlyId")Long elderlyId,
                                                  @PathVariable(name = "assistantId")Long assistantId,
@@ -182,7 +184,13 @@ public class CaregiverController implements CaregiverControllerDocs {
     }
 
     //노인 사용자 보고서 조회
-
+    @GetMapping("/elderlys/{elderlyId}/weekly-reports")
+    public ResponseEntity<?> getElderlyWeeklyReports(@PathVariable(name = "elderlyId")Long elderlyId,
+                                               @RequestParam(name = "cursor",required = false) @Parameter(description = "다음 데이터 조회를 위한 커서 값. 첫 요청 시 null 또는 비워둠. 다음 데이터 요청 시 이전 응답의 nextCursor를 사용") Long cursor,
+                                               @RequestParam(name = "limit", defaultValue = "10") @Parameter(description = "한 페이지에 표시할 항목 수. 기본값은 10") int limit,
+                                               @AuthenticationPrincipal LoginUser loginUser){
+        return new ResponseEntity<>(ApiUtil.success(reportService.getElderlyReportList(elderlyId, cursor, limit)), HttpStatus.OK);
+    }
 
 
 }
