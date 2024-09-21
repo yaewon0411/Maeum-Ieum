@@ -1,6 +1,5 @@
 package com.develokit.maeum_ieum.controller.caregiver;
 
-import com.develokit.maeum_ieum.config.jwt.RequireAuth;
 import com.develokit.maeum_ieum.config.loginUser.LoginUser;
 import com.develokit.maeum_ieum.dto.assistant.ReqDto.CreateAssistantReqDto;
 import com.develokit.maeum_ieum.dto.elderly.ReqDto.ElderlyCreateReqDto;
@@ -15,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.repository.config.RepositoryNameSpaceHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -183,13 +181,22 @@ public class CaregiverController implements CaregiverControllerDocs {
         return new ResponseEntity<>(ApiUtil.success(assistantService.getAssistantInfo(elderlyId, assistantId, loginUser.getCaregiver().getUsername())), HttpStatus.OK);
     }
 
-    //노인 사용자 보고서 조회
+    //노인 사용자 주간 보고서 조회
     @GetMapping("/elderlys/{elderlyId}/weekly-reports")
     public ResponseEntity<?> getElderlyWeeklyReports(@PathVariable(name = "elderlyId")Long elderlyId,
                                                @RequestParam(name = "cursor",required = false) @Parameter(description = "다음 데이터 조회를 위한 커서 값. 첫 요청 시 null 또는 비워둠. 다음 데이터 요청 시 이전 응답의 nextCursor를 사용") Long cursor,
                                                @RequestParam(name = "limit", defaultValue = "10") @Parameter(description = "한 페이지에 표시할 항목 수. 기본값은 10") int limit,
                                                @AuthenticationPrincipal LoginUser loginUser){
-        return new ResponseEntity<>(ApiUtil.success(reportService.getElderlyReportList(elderlyId, cursor, limit)), HttpStatus.OK);
+        return new ResponseEntity<>(ApiUtil.success(reportService.getElderlyWeeklyReportList(elderlyId, cursor, limit)), HttpStatus.OK);
+    }
+
+    //노인 사용자 월간 보고서 조회
+    @GetMapping("/elderlys/{elderlyId}/monthly-reports")
+    public ResponseEntity<?> getElderlyMonthlyReports(@PathVariable(name = "elderlyId")Long elderlyId,
+                                                     @RequestParam(name = "cursor",required = false) @Parameter(description = "다음 데이터 조회를 위한 커서 값. 첫 요청 시 null 또는 비워둠. 다음 데이터 요청 시 이전 응답의 nextCursor를 사용") Long cursor,
+                                                     @RequestParam(name = "limit", defaultValue = "10") @Parameter(description = "한 페이지에 표시할 항목 수. 기본값은 10") int limit,
+                                                     @AuthenticationPrincipal LoginUser loginUser){
+        return new ResponseEntity<>(ApiUtil.success(reportService.getElderlyMonthlyReportList(elderlyId, cursor, limit)), HttpStatus.OK);
     }
 
 

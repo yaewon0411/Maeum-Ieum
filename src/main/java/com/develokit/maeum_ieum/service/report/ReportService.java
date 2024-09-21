@@ -32,14 +32,14 @@ public class ReportService {
 
     //노인 사용자의 발행된 전체 주간 보고서 내역 보내기
     //노인 1의 '2024년 07월 07일 (수)', '2024년 06월 31일 (수)', .... 이런 식으로
-    public WeeklyReportListRespDto getElderlyReportList(Long elderlyId, Long cursor, int limit){
+    public WeeklyReportListRespDto getElderlyWeeklyReportList(Long elderlyId, Long cursor, int limit){
 
         Elderly elderlyPS = elderlyRepository.findById(elderlyId).orElseThrow(
                 () -> new CustomApiException("등록되지 않은 노인 사용자입니다.", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
         );
 
         //초기 cursor가 설정 안되면 max_value로 설정
-        if(cursor==null) cursor = Long.MAX_VALUE;
+        if(cursor==null || cursor.equals(0L)) cursor = Long.MAX_VALUE;
 
         //limit+1만큼 조회해야 함!!!!
         PageRequest pageRequest = PageRequest.of(0, limit + 1, Sort.by("id").descending());
@@ -55,6 +55,30 @@ public class ReportService {
         }
 
         return new WeeklyReportListRespDto(reportList, nextCursor);
+    }
+
+    //노인 사용자의 발행된 전체 월간 보고서 내역 보내기
+    public MonthlyReportListRespDto getElderlyMonthlyReportList(Long elderlyId, Long cursor, int limit){
+
+        Elderly elderlyPS = elderlyRepository.findById(elderlyId).orElseThrow(
+                () -> new CustomApiException("등록되지 않은 노인 사용자입니다.", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
+        );
+
+        //초기 cursor가 설정 안되면 max_value로 설정
+        if(cursor==null || cursor.equals(0L)) cursor = Long.MAX_VALUE;
+
+        PageRequest pageRequest = PageRequest.of(0, limit + 1, Sort.by("id").descending());
+
+        List<Report> reportList = reportRepository.findMonthlyReportByElderly(elderlyPS, ReportStatus.COMPLETED, ReportType.MONTHLY, cursor, pageRequest);
+
+        Long nextCursor = null;
+        if(reportList.size()>limit){
+            nextCursor = reportList.get(limit).getId();
+            reportList = reportList.subList(0, limit);
+        }
+
+        return new MonthlyReportListRespDto(reportList, nextCursor);
+
     }
 
 

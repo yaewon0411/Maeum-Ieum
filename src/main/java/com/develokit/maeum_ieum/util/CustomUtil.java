@@ -35,11 +35,18 @@ public class CustomUtil {
         return split[0]+"년 "+split[1]+"월 "+split[2]+"일";
     }
 
-    public static String LocalDateTimeToReportPublishedDate(LocalDateTime localDateTime){
+    public static String LocalDateTimeToWeeklyReportPublishedDate(LocalDateTime localDateTime){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = localDateTime.format(formatter);
         String[] split = formattedDate.split("-");
         return split[0]+"."+split[1]+"."+split[2]+".";
+    }
+
+    public static String LocalDateTimeToMonthlyReportPublishedDate(LocalDateTime localDateTime){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        String formattedDate = localDateTime.format(formatter);
+        String[] split = formattedDate.split("-");
+        return split[0]+"."+split[1];
     }
 
     public static String DayOfWeekToString(DayOfWeek dayOfWeek){

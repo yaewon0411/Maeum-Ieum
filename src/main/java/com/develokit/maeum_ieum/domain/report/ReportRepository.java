@@ -19,12 +19,24 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             "where r.elderly = :elderly " +
             "and r.reportStatus = :reportStatus " +
             "and r.reportType = :reportType " +
-            "and r.id < :cursor " +
+            "and r.id <= :cursor " +
             "order by r.id desc")
     List<Report> findWeeklyReportByElderly(@Param("elderly") Elderly elderly,
                                            @Param("reportStatus")ReportStatus reportStatus,
                                            @Param("reportType")ReportType reportType,
                                            @Param("cursor")Long cursor, PageRequest pageRequest);
+
+
+    @Query("select r from Report r " +
+            "where r.elderly = :elderly " +
+            "and r.reportStatus = :reportStatus " +
+            "and r.reportType = :reportType " +
+            "and r.id <= :cursor " +
+            "order by r.id desc")
+    List<Report> findMonthlyReportByElderly(@Param("elderly") Elderly elderly,
+                                            @Param("reportStatus")ReportStatus reportStatus,
+                                            @Param("reportType")ReportType reportType,
+                                            @Param("cursor")Long cursor, PageRequest pageRequest);
 
     @Query("select count(r) from Report r where r.elderly =: elderly and r.startDate = : startDate")
     int findByStartDate(@Param(value = "elderly")Elderly elderly, @Param(value = "startDate")LocalDateTime startDate);
