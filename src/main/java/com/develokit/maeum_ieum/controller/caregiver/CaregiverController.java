@@ -149,10 +149,12 @@ public class CaregiverController implements CaregiverControllerDocs {
                                                            BindingResult bindingResult,
                                                            @AuthenticationPrincipal LoginUser loginUser){
         return caregiverService.createAutoMandatoryRule(assistantMandatoryRuleReqDto)
-                .map(assistantMandatoryRuleRespDto -> ResponseEntity
-                        .status(HttpStatus.CREATED)
-                        .body(ApiUtil.success(assistantMandatoryRuleRespDto))
-                );
+                .map(assistantMandatoryRuleRespDto -> {
+                    log.debug("노인 필수 규칙 자동 생성 완료. 응답: {}", assistantMandatoryRuleRespDto);
+                    return ResponseEntity
+                            .status(HttpStatus.CREATED)
+                            .body(ApiUtil.success(assistantMandatoryRuleRespDto));
+                });
     }
     //알림 내역 조회
 

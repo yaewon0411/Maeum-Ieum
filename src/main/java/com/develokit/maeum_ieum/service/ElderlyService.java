@@ -159,10 +159,22 @@ public class ElderlyService {
         }
         else{ //스레드가 있다면
             LocalDateTime lastChatTime = elderlyPS.getLastChatTime();
-            //마지막 접근일로부터 30일이 지났는지 검증 -> 지났다면 새로운 스레드 생성
-            if(ChronoUnit.DAYS.between(lastChatTime, LocalDateTime.now()) >= 30){
-                ThreadRespDto threadRespDto = openAiService.createThread();
-                assistantPS.attachThread(threadRespDto.getId());
+            //이전 응답 기록이 없다면
+            if (lastChatTime == null) {
+                //스레드 생성일로부터 30일이 지났는지 검증 -> 지났다면 새로운 스레드 생성
+                LocalDateTime threadCreatedDate = assistantPS.getThreadCreatedDate();
+
+                //스레드 생성일로부터 30일이 지남
+                if(ChronoUnit.DAYS.between(threadCreatedDate, LocalDateTime.now()) >= 30){
+                    ThreadRespDto threadRespDto = openAiService.createThread();
+                    assistantPS.attachThread(threadRespDto.getId());
+                }
+
+            } else { //이전 응답 기록이 있다면
+                if(ChronoUnit.DAYS.between(lastChatTime, LocalDateTime.now()) >= 30){
+                    ThreadRespDto threadRespDto = openAiService.createThread();
+                    assistantPS.attachThread(threadRespDto.getId());
+                }
             }
         }
 

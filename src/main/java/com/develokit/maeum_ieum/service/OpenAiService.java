@@ -124,6 +124,7 @@ public class OpenAiService {
             )).map(AssistantMandatoryRuleRespDto::new);
 
         }catch (Exception e){
+            log.error("GPT 자동 생성 필수 규칙 반환 중 오류 발생: "+e.getMessage());
             throw new CustomApiException("OPENAI_SERVER_ERROR", 500, HttpStatus.INTERNAL_SERVER_ERROR);
 
         }

@@ -85,6 +85,7 @@ public class SecurityConfig {
                 .exceptionHandling(handler -> {
                     handler
                     .authenticationEntryPoint((request, response, authException) -> {
+                        log.error("인증되지 않은 접근 발생: {}, {}", request,response);
                         ObjectMapper om = new ObjectMapper();
                         ApiResult<?> responseDto = ApiUtil.error("인증되지 않은 접근입니다", HttpStatus.UNAUTHORIZED.value());
                         String responseBody = CustomUtil.convertToJson(responseDto);
