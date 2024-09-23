@@ -1,4 +1,5 @@
 package com.develokit.maeum_ieum.config.jwt;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
@@ -28,16 +29,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (CustomApiException e) {
             log.error("CustomApiException: URI = {}, 메시지 = {} ",request.getRequestURI(), e.getMessage(), e);
-            setErrorResponse(HttpStatus.UNAUTHORIZED, response, e.getMessage());
-        } catch (TokenExpiredException e) {
-            log.error("TokenExpiredException: URI = {}, 메시지 = {}", request.getRequestURI(), e.getMessage(), e);
-            setErrorResponse(HttpStatus.UNAUTHORIZED, response, "토큰이 만료되었습니다");
-        } catch (SignatureVerificationException e) {
-            log.error("SignatureVerificationException: URI = {}, 메시지 = {}", request.getRequestURI(), e.getMessage(), e);
-            setErrorResponse(HttpStatus.UNAUTHORIZED, response, "유효하지 않은 토큰 서명입니다");
-        } catch (JWTVerificationException e) {
-            log.error("JWTVerificationException: URI = {}, 메시지 = {}", request.getRequestURI(), e.getMessage(), e);
-            setErrorResponse(HttpStatus.UNAUTHORIZED, response, "유효하지 않은 토큰입니다");
+            setErrorResponse(e.getHttpStatus(), response, e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected Exception: URI = {}, 메시지 = {}", request.getRequestURI(), e.getMessage(), e);
             setErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, response, "서버 내부 오류가 발생했습니다");
@@ -45,10 +37,9 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     }
 
     private void setErrorResponse(HttpStatus status, HttpServletResponse response, String message) throws IOException {
+        ApiResult<Object> jwtExceptionResponse = ApiUtil.error(message, status.value());
         response.setStatus(status.value());
         response.setContentType("application/json; charset=UTF-8");
-
-        ApiResult<Object> jwtExceptionResponse = ApiUtil.error(message, status.value());
         response.getWriter().write(CustomUtil.convertToJson(jwtExceptionResponse));
     }
 }
