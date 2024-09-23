@@ -74,4 +74,9 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     List<Report> findByElderly(Elderly eldelry);
 
+
+    @Modifying
+    @Query("DELETE FROM Report r WHERE r.elderly = :elderly")
+    void deleteAllByElderly(@Param("elderly") Elderly elderly);
+
 }

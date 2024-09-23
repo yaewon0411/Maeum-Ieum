@@ -360,16 +360,22 @@ public class ElderlyService {
         log.info("노인 {}: 보고서 리스트 삭제 작업 시작", elderlyId);
         //TODO 노인 보고서 삭제하기 (양방향: orphanRemoval=true 동작)
         List<Report> reportList = reportRepository.findByElderly(elderlyPS);
+        int deletedWeeklyReportCnt = 0, deletedMonthlyReportCnt=0;
         for (Report report : reportList) {
             if(report.getReportType().equals(ReportType.WEEKLY)) {
                 elderlyPS.getWeeklyReports().remove(report);
-                log.info("노인 {}: 주간 보고서 id {} 삭제 완료", elderlyId, report.getId());
+                deletedWeeklyReportCnt++;
+                //log.info("노인 {}: 주간 보고서 id {} 삭제 완료", elderlyId, report.getId());
             }
             else if(report.getReportType().equals(ReportType.MONTHLY)){
                 elderlyPS.getMonthlyReports().remove(report);
-                log.info("노인 {}: 월간 보고서 id {} 삭제 완료", elderlyId, report.getId());
+                deletedMonthlyReportCnt++;
+                //log.info("노인 {}: 월간 보고서 id {} 삭제 완료", elderlyId, report.getId());
             }
         }
+        reportRepository.deleteAllByElderly(elderlyPS);
+        log.info("노인 {}: 삭제된 주간 보고서 개수 {}", elderlyId, deletedWeeklyReportCnt);
+        log.info("노인 {}: 삭제된 월간 보고서 개수 {}", elderlyId, deletedMonthlyReportCnt);
 
         //TODO 노인 대화 기록 삭제하기(단방향)
         log.info("노인 {}: 메시지 내역 삭제 작업 시작", elderlyId);
@@ -380,21 +386,28 @@ public class ElderlyService {
         //TODO 아예 물리적으로 삭제할까 아니면 논리적 삭제해서 기록은 놔둘지
         log.info("노인 {}: 긴급 알림 내역 삭제 작업 시작", elderlyId);
         List<EmergencyRequest> emergencyRequestList = emergencyRequestRepository.findByElderly(elderlyPS);
-        if(!emergencyRequestList.isEmpty()) caregiverPS.getEmergencyRequestList().removeAll(emergencyRequestList);
+        if(!emergencyRequestList.isEmpty()) {
+            caregiverPS.getEmergencyRequestList().removeAll(emergencyRequestList);
+            emergencyRequestRepository.deleteAllByElderly(elderlyPS);
+        }
         log.info("노인 {}: 삭제된 긴급 알림 내역 개수 {}", elderlyId, emergencyRequestList.size());
 
 
         //TODO 노인 어시스턴트 삭제 & 요양사와의 연결 끊기 (양방향: orphanRemoval=true 동작)
         if(elderlyPS.getAssistant()!=null) {
             log.info("노인 {}: AI 어시스턴트 삭제 작업 시작", elderlyId);
+            Caregiver caregiverWithAssistants = careGiverRepository.findCaregiverWithAssistants(caregiverPS.getId());//컬렉션 지연 로딩 프록시 문제로 인해 페치 조인으로 assistantList 한번에 끌고옴
             Assistant assistantPS = elderlyPS.getAssistant();
-            caregiverPS.getAssistantList().remove(assistantPS);
+            caregiverWithAssistants.removeAssistant(assistantPS); //컬렉션 초기화된 caregiver 객체를 사용해 삭제
+            assistantRepository.delete(assistantPS);
             log.info("노인 {}: 삭제된 AI 어시스턴트 id {}", elderlyId, assistantPS.getId());
         }
 
         //TODO 노인 삭제(양방향: orphanRemoval=true 동작)
         log.info("노인 {}: 노인 삭제 작업 시작", elderlyId);
-        caregiverPS.removeElderly(elderlyPS);
+        Caregiver caregiverWithElderlys = careGiverRepository.findCaregiverWithElderlys(caregiverPS.getId());//컬렉션 지연 로딩 프록시 문제로 인해 페치 조인으로 elderlyList 한번에 끌고옴
+        caregiverWithElderlys.removeElderly(elderlyPS);
+        elderlyRepository.delete(elderlyPS);
         log.info("노인 {}: 요양사 id {} 관리 대상에서 삭제 완료", elderlyId, caregiverPS.getId());
 
 
