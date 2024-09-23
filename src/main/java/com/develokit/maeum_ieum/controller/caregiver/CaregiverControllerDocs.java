@@ -203,16 +203,16 @@ public interface CaregiverControllerDocs {
     })
     ResponseEntity<?> getElderlyInfo(@PathVariable(name = "elderlyId")Long elderlyId, @AuthenticationPrincipal LoginUser loginUser);
 
-    @Operation(summary = "AI 어시스턴트 필수 규칙 자동 생성 ", description = "AI 어시스턴트 필수 규칙 자동 생성 요청: jwt 토큰 사용")
-    @ApiResponses( value = {
-            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = AssistantMandatoryRuleReqDto.class), mediaType = "application/json")),
-            @ApiResponse(responseCode = "401", description = "토큰 기간 만료", content = @Content(schema = @Schema(implementation = AssistantMandatoryRuleReqDto.class), mediaType = "application/json")),
-            @ApiResponse(responseCode = "500", description = "GPT 메시지 생성 과정에서 에러 발생", content = @Content(schema = @Schema(implementation = AssistantMandatoryRuleReqDto.class), mediaType = "application/json")),
-    })
-    Mono<ResponseEntity<?>> createAutoMandatoryRule(@PathVariable(name = "elderlyId")Long elderlyId,
-                                                    @Valid @RequestBody AssistantMandatoryRuleReqDto assistantMandatoryRuleReqDto,
-                                                    BindingResult bindingResult,
-                                                    @AuthenticationPrincipal LoginUser loginUser);
+//    @Operation(summary = "AI 어시스턴트 필수 규칙 자동 생성 ", description = "AI 어시스턴트 필수 규칙 자동 생성 요청: jwt 토큰 사용")
+//    @ApiResponses( value = {
+//            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = AssistantMandatoryRuleReqDto.class), mediaType = "application/json")),
+//            @ApiResponse(responseCode = "401", description = "토큰 기간 만료", content = @Content(schema = @Schema(implementation = AssistantMandatoryRuleReqDto.class), mediaType = "application/json")),
+//            @ApiResponse(responseCode = "500", description = "GPT 메시지 생성 과정에서 에러 발생", content = @Content(schema = @Schema(implementation = AssistantMandatoryRuleReqDto.class), mediaType = "application/json")),
+//    })
+//    Mono<ResponseEntity<ApiResult<AssistantMandatoryRuleRespDto>>> createAutoMandatoryRule(@PathVariable(name = "elderlyId")Long elderlyId,
+//                                                    @Valid @RequestBody AssistantMandatoryRuleReqDto assistantMandatoryRuleReqDto,
+//                                                    BindingResult bindingResult,
+//                                                    @AuthenticationPrincipal LoginUser loginUser);
     @Operation(summary = "알림 내역 페이지 조회 ", description = "관리하는 노인 사용자가 발행한 알림 내역 조회: jwt 토큰 사용")
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = EmergencyRequestListRespDto.class), mediaType = "application/json")),
