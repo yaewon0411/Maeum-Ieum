@@ -1,4 +1,4 @@
-package com.develokit.maeum_ieum.domain.report;
+package com.develokit.maeum_ieum.domain.report.indicator;
 
 public enum HealthStatus {
     VERY_POOR("정말 별로예요"),
