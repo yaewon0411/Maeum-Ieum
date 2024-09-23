@@ -10,6 +10,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,25 +20,26 @@ import java.io.IOException;
 
 @Component
 public class JwtExceptionFilter extends OncePerRequestFilter {
+    private static final Logger log = LoggerFactory.getLogger(JwtExceptionFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
         } catch (CustomApiException e) {
-            logger.error("CustomApiException: ", e);
+            log.error("CustomApiException: URI = {}, 메시지 = {} ",request.getRequestURI(), e.getMessage(), e);
             setErrorResponse(HttpStatus.UNAUTHORIZED, response, e.getMessage());
         } catch (TokenExpiredException e) {
-            logger.error("TokenExpiredException: ", e);
+            log.error("TokenExpiredException: URI = {}, 메시지 = {}", request.getRequestURI(), e.getMessage(), e);
             setErrorResponse(HttpStatus.UNAUTHORIZED, response, "토큰이 만료되었습니다");
         } catch (SignatureVerificationException e) {
-            logger.error("SignatureVerificationException: ", e);
+            log.error("SignatureVerificationException: URI = {}, 메시지 = {}", request.getRequestURI(), e.getMessage(), e);
             setErrorResponse(HttpStatus.UNAUTHORIZED, response, "유효하지 않은 토큰 서명입니다");
         } catch (JWTVerificationException e) {
-            logger.error("JWTVerificationException: ", e);
+            log.error("JWTVerificationException: URI = {}, 메시지 = {}", request.getRequestURI(), e.getMessage(), e);
             setErrorResponse(HttpStatus.UNAUTHORIZED, response, "유효하지 않은 토큰입니다");
         } catch (Exception e) {
-            logger.error("Unexpected Exception: ", e);
+            log.error("Unexpected Exception: URI = {}, 메시지 = {}", request.getRequestURI(), e.getMessage(), e);
             setErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, response, "서버 내부 오류가 발생했습니다");
         }
     }

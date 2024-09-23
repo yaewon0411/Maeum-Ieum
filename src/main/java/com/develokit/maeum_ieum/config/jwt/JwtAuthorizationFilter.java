@@ -53,18 +53,18 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             }
 
             String token = header.replace(JwtVo.TOKEN_PREFIX, "");
-            logger.debug("디버그 : 토큰이 존재함");
+            logger.debug("디버그 : JWT 토큰 확인됨. URI: {}", request.getRequestURI());
 
             // 토큰 검증
             LoginUser loginUser = JwtProvider.verify(token);
 
             loginUser.getAuthorities().forEach(grantedAuthority ->
-                    logger.debug("grantedAuthority.getAuthority().toString() = " + grantedAuthority.getAuthority().toString()));
+                    logger.debug("디버그 : 부여된 권한: {}", grantedAuthority.getAuthority()));
 
             // 임시 세션 생성
             Authentication authentication = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
 
-            logger.debug("임시 세션 생성");
+            logger.debug("인증 정보 설정 완료. 사용자: {}", loginUser.getUsername());
 
             // 로그인
             SecurityContextHolder.getContext().setAuthentication(authentication);
