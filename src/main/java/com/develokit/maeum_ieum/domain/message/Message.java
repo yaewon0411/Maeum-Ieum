@@ -28,7 +28,6 @@ public class Message extends BaseEntity {
     @Column(length = 2048)
     private String content; //메시지 내용
     @Builder
-
     public Message(Elderly elderly, MessageType messageType, String content) {
         this.elderly = elderly;
         this.messageType = messageType;

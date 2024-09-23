@@ -55,10 +55,10 @@ public class Elderly extends User {
 
     private LocalDateTime lastChatTime; //마지막 대화 날짜
 
-    @OneToMany(mappedBy = "elderly")
+    @OneToMany(mappedBy = "elderly", orphanRemoval = true)
     private List<Report> weeklyReports = new ArrayList<>(); //주간 보고서
 
-    @OneToMany(mappedBy = "elderly")
+    @OneToMany(mappedBy = "elderly", orphanRemoval = true)
     private List<Report> monthlyReports = new ArrayList<>(); //월간 보고서
 
     //TODO -> 프론트에서 추가하는 화면 구현하면 연결할것
