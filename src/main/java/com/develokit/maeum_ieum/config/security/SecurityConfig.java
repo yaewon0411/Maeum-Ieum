@@ -1,4 +1,4 @@
-package com.develokit.maeum_ieum.config;
+package com.develokit.maeum_ieum.config.security;
 
 import com.develokit.maeum_ieum.config.jwt.JwtAuthenticationFilter;
 import com.develokit.maeum_ieum.config.jwt.JwtAuthorizationFilter;
@@ -15,8 +15,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -48,6 +50,8 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@Order(2)
 public class SecurityConfig {
 
     private final Logger log = LoggerFactory.getLogger((getClass()));
@@ -74,38 +78,6 @@ public class SecurityConfig {
             super.configure(builder);
         }
     }
-
-    // WebFlux 스타일 메서드를 위한 추가 설정
-//    @Bean
-//    public WebFilter webFluxSecurityFilter() {
-//        return (exchange, chain) -> {
-//            ServerHttpRequest request = exchange.getRequest();
-//            if (request.getPath().value().contains("/assistants/rules/autocomplete")) {
-//                String token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-//                if (token != null && token.startsWith("Bearer ")) {
-//                    token = token.substring(7);
-//                    try {
-//                        LoginUser loginUser = JwtProvider.verify(token);
-//                        UsernamePasswordAuthenticationToken auth =
-//                                new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
-//
-//                        return chain.filter(exchange)
-//                                .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
-//                    } catch (Exception e) {
-//                        return onError(exchange, "Invalid token", HttpStatus.UNAUTHORIZED);
-//                    }
-//                }
-//                return onError(exchange, "No token found", HttpStatus.UNAUTHORIZED);
-//            }
-//            return chain.filter(exchange);
-//        };
-//    }
-//
-//    private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus) {
-//        ServerHttpResponse response = exchange.getResponse();
-//        response.setStatusCode(httpStatus);
-//        return response.setComplete();
-//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
