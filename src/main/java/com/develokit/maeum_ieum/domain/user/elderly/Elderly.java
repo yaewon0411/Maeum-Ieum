@@ -80,13 +80,14 @@ public class Elderly extends User {
         this.lastChatTime = lastChatTime;
     }
     @Builder
-    public Elderly(String name, String contact, Gender gender, String imgUrl, LocalDate birthDate, String organization, String healthInfo, String homeAddress, Caregiver caregiver, Assistant assistant, EmergencyContactInfo emergencyContactInfo, Role role) {
+    public Elderly(Long id, String name, String contact, Gender gender, String imgUrl, LocalDate birthDate, String organization, String healthInfo, String homeAddress, Caregiver caregiver, Assistant assistant, EmergencyContactInfo emergencyContactInfo, Role role) {
         super(name, contact, gender, imgUrl, birthDate, organization, role);
         this.healthInfo = healthInfo;
         this.homeAddress = homeAddress;
         this.caregiver = caregiver;
         this.assistant = assistant;
         this.emergencyContactInfo = emergencyContactInfo;
+        this.id = id;
         caregiver.getElderlyList().add(this);
     }
 

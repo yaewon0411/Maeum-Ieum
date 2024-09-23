@@ -350,10 +350,11 @@ public class ElderlyService {
         }
 
         //s3에 있는 노인 프로필 사진 삭제
-        if(!elderlyPS.getImgUrl().isEmpty()) {
-            log.info("노인 {}:  프로필 사진 삭제 작업 시작", elderlyId);
-            s3Service.deleteImage(elderlyPS.getImgUrl());
-            log.info("노인 {}:  프로필 사진 {} 삭제 완료", elderlyId, elderlyPS.getImgUrl());
+        String imgUrl = elderlyPS.getImgUrl();
+        if(imgUrl != null && !imgUrl.isEmpty()) {
+            log.info("노인 {}: 프로필 사진 삭제 작업 시작", elderlyId);
+            s3Service.deleteImage(imgUrl);
+            log.info("노인 {}: 프로필 사진 {} 삭제 완료", elderlyId, imgUrl);
         }
 
         log.info("노인 {}: 보고서 리스트 삭제 작업 시작", elderlyId);
@@ -362,18 +363,18 @@ public class ElderlyService {
         for (Report report : reportList) {
             if(report.getReportType().equals(ReportType.WEEKLY)) {
                 elderlyPS.getWeeklyReports().remove(report);
-                log.info("노인 {}: 주간 보고서 {} 삭제 완료", elderlyId, report.getId());
+                log.info("노인 {}: 주간 보고서 id {} 삭제 완료", elderlyId, report.getId());
             }
             else if(report.getReportType().equals(ReportType.MONTHLY)){
                 elderlyPS.getMonthlyReports().remove(report);
-                log.info("노인 {}: 월간 보고서 {} 삭제 완료", elderlyId, report.getId());
+                log.info("노인 {}: 월간 보고서 id {} 삭제 완료", elderlyId, report.getId());
             }
         }
 
         //TODO 노인 대화 기록 삭제하기(단방향)
         log.info("노인 {}: 메시지 내역 삭제 작업 시작", elderlyId);
         int deletedMessagesCnt = messageRepository.deleteAllByElderly(elderlyPS);
-        log.debug("노인{}: 삭제된 메시지 개수 {}", elderlyId, deletedMessagesCnt);
+        log.info("노인 {}: 삭제된 메시지 개수 {}", elderlyId, deletedMessagesCnt);
 
         //TODO 노인 긴급 알람 내역 삭제하기(양방향: orphanRemoval=true 동작)
         //TODO 아예 물리적으로 삭제할까 아니면 논리적 삭제해서 기록은 놔둘지
@@ -388,16 +389,16 @@ public class ElderlyService {
             log.info("노인 {}: AI 어시스턴트 삭제 작업 시작", elderlyId);
             Assistant assistantPS = elderlyPS.getAssistant();
             caregiverPS.getAssistantList().remove(assistantPS);
-            log.info("노인 {}: 삭제된 AI 어시스턴트 {}", elderlyId, assistantPS.getId());
+            log.info("노인 {}: 삭제된 AI 어시스턴트 id {}", elderlyId, assistantPS.getId());
         }
 
         //TODO 노인 삭제(양방향: orphanRemoval=true 동작)
         log.info("노인 {}: 노인 삭제 작업 시작", elderlyId);
         caregiverPS.removeElderly(elderlyPS);
-        log.info("노인 {}: 요양사 {} 관리 대상에서 삭제 완료", elderlyId, caregiverPS.getId());
+        log.info("노인 {}: 요양사 id {} 관리 대상에서 삭제 완료", elderlyId, caregiverPS.getId());
 
 
-        log.info("노인{}: 성공적으로 삭제되었습니다", elderlyId);
+        log.info("노인 {}: 성공적으로 삭제되었습니다", elderlyId);
         return new ElderlyDeleteRespDto(elderlyPS);
     }
 
