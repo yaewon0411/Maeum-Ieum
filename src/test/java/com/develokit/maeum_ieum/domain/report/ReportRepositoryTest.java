@@ -36,12 +36,25 @@ class ReportRepositoryTest extends DummyObject {
     @Test
     @Rollback(value = false)
     @Transactional
-    void 테스트용Report생성하기() throws JsonProcessingException {
+    void 테스트용_주간보고서_생성하기() throws JsonProcessingException {
         Optional<Elderly> elderly = elderlyRepository.findById(34L);
 
         Elderly elderlyPS = elderly.get();
 
         Report report = mockWeeklyReport(elderlyPS);
+
+        em.persist(report);
+    }
+
+    @Test
+    @Rollback(value = false)
+    @Transactional
+    void 테스트용_월간보고서_생성하기() throws JsonProcessingException {
+        Optional<Elderly> elderly = elderlyRepository.findById(34L);
+
+        Elderly elderlyPS = elderly.get();
+
+        Report report = mockMonthlyReport(elderlyPS);
 
         em.persist(report);
     }

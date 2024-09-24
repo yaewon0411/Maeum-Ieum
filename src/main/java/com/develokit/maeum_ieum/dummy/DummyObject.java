@@ -20,15 +20,53 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class DummyObject {
+
+    protected Report mockMonthlyReport(Elderly elderly) throws JsonProcessingException {
+
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = endDate.minusMonths(1);
+
+        Report report = Report.builder()
+                .reportType(ReportType.MONTHLY)
+                .elderly(elderly)
+                .startDate(startDate)
+                .endDate(endDate)
+                .healthStatusIndicator(HealthStatusIndicator.EXCELLENT)
+                .activityLevelIndicator(ActivityLevelIndicator.EXCELLENT)
+                .cognitiveFunctionIndicator(CognitiveFunctionIndicator.FAIR)
+                .lifeSatisfactionIndicator(LifeSatisfactionIndicator.POOR)
+                .psychologicalStabilityIndicator(PsychologicalStabilityIndicator.VERY_POOR)
+                .socialConnectivityIndicator(SocialConnectivityIndicator.GOOD)
+                .supportNeedsIndicator(SupportNeedsIndicator.FAIR)
+                .memo("유우시군을 분석했어🤍")
+                .build();
+
+        report.setQuantitativeAnalysis(HealthStatusIndicator.EXCELLENT, "유우시쿤 건강상태 초 사이코🤍");
+        report.setQuantitativeAnalysis(ActivityLevelIndicator.EXCELLENT, "유우시쿤 활동량 초 타카이🤍 일일 평균 걸음 수: 15,000보");
+        report.setQuantitativeAnalysis(CognitiveFunctionIndicator.FAIR, "인지 기능 테스트 점수: 25/30, 일상생활 수행 능력 양호");
+        report.setQuantitativeAnalysis(LifeSatisfactionIndicator.POOR, "주관적 행복도 점수: 4/10, 유우시쿤 개선이 필요행ㅠㅠ!!");
+        report.setQuantitativeAnalysis(PsychologicalStabilityIndicator.VERY_POOR, "우울증 선별 검사 점수: 15/20, 전문가 상담 권장");
+        report.setQuantitativeAnalysis(SocialConnectivityIndicator.GOOD, "주간 사회활동 참여 횟수: 4회, 사회적 관계 만족도 높음");
+        report.setQuantitativeAnalysis(SupportNeedsIndicator.FAIR, "일상생활 지원 필요도: 중간, 유우시군 주 2회 방문 요양 서비스 권장🤍");
+        return report;
+    }
+
     protected Report mockWeeklyReport(Elderly elderly) throws JsonProcessingException {
+
+        LocalDateTime endDate= LocalDateTime.now();
+        LocalDateTime startDate = endDate.minusWeeks(1);
+
         Report report = Report.builder()
                 .reportType(ReportType.WEEKLY)
                 .elderly(elderly)
+                .startDate(startDate)
+                .endDate(endDate)
                 .healthStatusIndicator(HealthStatusIndicator.EXCELLENT)
                 .activityLevelIndicator(ActivityLevelIndicator.EXCELLENT)
                 .cognitiveFunctionIndicator(CognitiveFunctionIndicator.FAIR)

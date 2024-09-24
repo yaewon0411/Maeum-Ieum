@@ -47,6 +47,63 @@ public class RespDto {
         @JsonProperty("supportNeedsIndicator")
         private String supportNeedsIndicator;
     }
+    @NoArgsConstructor
+    @Getter
+    @Schema(description = "월간 보고서 정량적 평가 조회 반환 DTO")
+    public static class MonthlyReportQuantitativeAnalysisRespDto{
+        private static final Gson gson = new Gson();
+        private static final ObjectMapper om = new ObjectMapper();
+        private static final Logger log = LoggerFactory.getLogger(MonthlyReportQuantitativeAnalysisRespDto.class);
+
+        @Schema(description = "월간 보고서 분석 시작일", example =  "2024.09")
+        private String startDate;
+
+        @Schema(description = "보고서 메모")
+        private String memo;
+
+        @Schema(description = "건강 상태 지표")
+        private String healthStatus;
+
+        @Schema(description = "활동 수준 지표")
+        private String activityLevel;
+
+        @Schema(description = "인지 기능 지표")
+        private String cognitiveFunction;
+
+        @Schema(description = "생활 만족도 지표")
+        private String lifeSatisfaction;
+
+        @Schema(description = "심리적 안정 지표")
+        private String psychologicalStability;
+
+        @Schema(description = "사회적 연결성 지표")
+        private String socialConnectivity;
+
+        @Schema(description = "필요 지원 지표")
+        private String supportNeeds;
+
+        @Schema(description = "정량적 분석 결과")
+        private QuantitativeAnalysis quantitativeAnalysis;
+
+        public MonthlyReportQuantitativeAnalysisRespDto(Report report){
+            this.startDate = CustomUtil.LocalDateTimeToMonthlyReportPublishedDate(report.getStartDate());
+            this.memo = report.getMemo();
+            this.healthStatus = report.getHealthStatusIndicator().getDescription();
+            this.activityLevel = report.getActivityLevelIndicator().getDescription();
+            this.cognitiveFunction = report.getCognitiveFunctionIndicator().getDescription();
+            this.lifeSatisfaction = report.getLifeSatisfactionIndicator().getDescription();
+            this.psychologicalStability = report.getPsychologicalStabilityIndicator().getDescription();
+            this.socialConnectivity = report.getSocialConnectivityIndicator().getDescription();
+            this.supportNeeds = report.getSupportNeedsIndicator().getDescription();
+            // JSON 문자열을 Map으로 파싱
+            try {
+                this.quantitativeAnalysis = gson.fromJson(report.getQuantitativeAnalysis(), QuantitativeAnalysis.class);
+            }catch(JsonSyntaxException e){
+                log.error("JSON 파싱 중 오류 발생: 구문 오류 ", e);
+            }
+
+        }
+    }
 
     @NoArgsConstructor
     @Getter
@@ -56,6 +113,14 @@ public class RespDto {
 
         private static final ObjectMapper om = new ObjectMapper();
         private static final Logger log = LoggerFactory.getLogger(WeeklyReportQuantitativeAnalysisRespDto.class);
+
+        @Schema(description = "주간 보고서 분석 시작일", example =  "2024.09.20.")
+        private String startDate;
+        @Schema(description = "주간 보고서 분석 종료일", example =  "2024.09.20.")
+        private String endDate;
+
+        @Schema(description = "주간 보고서 발행 요일", example =  "(금)")
+        private String reportDay; //DayOfWeek 타입의 reportDay를 한글로 변환시킨 것
 
         @Schema(description = "보고서 메모")
         private String memo;
@@ -85,6 +150,9 @@ public class RespDto {
         private QuantitativeAnalysis quantitativeAnalysis;
 
         public WeeklyReportQuantitativeAnalysisRespDto(Report report){
+            this.reportDay = report.getReportDay()==null?null:CustomUtil.DayOfWeekToString(report.getReportDay()); //(수)
+            this.startDate = CustomUtil.LocalDateTimeToWeeklyReportCreatedDate(report.getStartDate());
+            this.endDate = CustomUtil.LocalDateTimeToWeeklyReportPublishedDate(report.getEndDate(), 1); //일자를 하나 차감해야 함
             this.memo = report.getMemo();
             this.healthStatus = report.getHealthStatusIndicator().getDescription();
             this.activityLevel = report.getActivityLevelIndicator().getDescription();
@@ -163,7 +231,7 @@ public class RespDto {
         public static class WeeklyReportDto{
             public WeeklyReportDto(Report report) {
                 this.reportId = report.getId();
-                this.publishedDate = CustomUtil.LocalDateTimeToWeeklyReportPublishedDate(report.getEndDate()); //2024.07.07.
+                this.publishedDate = CustomUtil.LocalDateTimeToWeeklyReportPublishedDate(report.getEndDate(), 0); //2024.07.07. (최종 분석 발행일은 차감 없이 내보도록)
                 this.reportDay = report.getReportDay()==null?null:CustomUtil.DayOfWeekToString(report.getReportDay()); //(수)
             }
 
