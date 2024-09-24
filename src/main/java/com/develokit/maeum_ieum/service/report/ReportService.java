@@ -53,20 +53,20 @@ public class ReportService {
                 () -> new CustomApiException("등록되지 않은 노인 사용자입니다.", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
         );
 
-        //해당 주간 보고서 가져오기
+        //해당 월간 보고서 가져오기
         Report reportPS = reportRepository.findById(reportId).orElseThrow(
                 () -> new CustomApiException("존재하지 않는 보고서입니다", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
         );
 
-        //주간 보고서 아이디로 들어왔는데, 타입이 주간 보고서가 아닌 경우 서버 에러 throw
+        //월간 보고서 아이디로 들어왔는데, 타입이 월간 보고서가 아닌 경우 서버 에러 throw
         if(!reportPS.getReportType().equals(ReportType.MONTHLY))
             throw new CustomApiException("서버 내부 오류가 발생했습니다", HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR);
 
         try{
             return new MonthlyReportQuantitativeAnalysisRespDto(reportPS);
         }catch (JsonSyntaxException e){
-            log.error("주간 보고서 정량적 분석 결과 파싱 중 오류 발생: ", e);
-            throw new CustomApiException("주간 보고서 정량적 분석 결과 파싱 중 오류 발생", HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("월간 보고서 정량적 분석 결과 파싱 중 오류 발생: ", e);
+            throw new CustomApiException("월간 보고서 정량적 분석 결과 파싱 중 오류 발생", HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
