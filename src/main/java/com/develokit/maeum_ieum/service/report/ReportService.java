@@ -1,5 +1,7 @@
 package com.develokit.maeum_ieum.service.report;
 
+import com.develokit.maeum_ieum.domain.message.Message;
+import com.develokit.maeum_ieum.domain.message.MessageRepository;
 import com.develokit.maeum_ieum.domain.report.Report;
 import com.develokit.maeum_ieum.domain.report.ReportRepository;
 import com.develokit.maeum_ieum.domain.report.ReportStatus;
@@ -8,6 +10,7 @@ import com.develokit.maeum_ieum.domain.report.indicator.HealthStatusIndicator;
 import com.develokit.maeum_ieum.domain.user.elderly.Elderly;
 import com.develokit.maeum_ieum.domain.user.elderly.ElderlyRepository;
 import com.develokit.maeum_ieum.ex.CustomApiException;
+import com.develokit.maeum_ieum.service.OpenAiService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonSyntaxException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +21,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,6 +38,8 @@ public class ReportService {
 
     private final ReportRepository reportRepository;
     private final ElderlyRepository elderlyRepository;
+    private final MessageRepository messageRepository;
+    private final WeeklyReportAnalysisService weeklyReportAnalysisService;
     private final Logger log = LoggerFactory.getLogger(ReportService.class);
 
 
@@ -162,20 +170,60 @@ public class ReportService {
         return new MonthlyReportListRespDto(reportList, nextCursor);
 
     }
+    // 동기 메서드 (배치 프로세서용)
+    @Transactional
+    public Report generateReportContentSync(Report report) {
+        return generateReportContent(report)
+                .block(Duration.ofMinutes(30)); // 타임아웃 설정
+    }
+
+    public Mono<Report> generate(){
+
+        return Mono.fromCallable(() -> reportRepository.findById(121L).get())
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(this::generateReportContent);
+    }
 
     //지표에 따른 보고서 생성하기
-    @Transactional
-    public void generateReportContent(Report report) throws JsonProcessingException {
+    public Mono<Report> generateReportContent(Report report) {
+        Elderly elderly = report.getElderly();
+        List<Message> messageList = messageRepository.findByElderly(elderly);
 
+        if (messageList.isEmpty()) {
+            //대화 내역 없는 거 어떻게 처리할 지
+        }
 
-
-
-        //어쩌구저쩌구
-        report.setQualitativeAnalysis("정성적 보고서 분석 결과");
-
-        report.setQuantitativeAnalysis(HealthStatusIndicator.GOOD, "유우시군 건강 상태 사이코🤍");
+        if (report.getReportType().equals(ReportType.WEEKLY)) {
+            return generateWeeklyReportAnalysis(report, messageList)
+                    .flatMap(Mono::just)
+                    .doOnError(e -> log.error("보고서 생성 중 오류 발생", e));
+        }
+        else{
+            //어쩌구저쩌구
+            //report.setQualitativeAnalysis("정성적 보고서 분석 결과");
+            /*
+            * 월간 보고서는
+            * 월간 보고서가 생성된 달에 만들어진 주간 보고서를 사용해서
+            * 종합적인 평가를 내려달라고 부탁할 생각
+            *
+            * */
+            //아래는 에러 막기용으로 추가
+            return Mono.just(report)
+                    .map(r -> {
+                        r.setQualitativeAnalysis("정성적 보고서 분석 결과..");
+                        return r;
+                    });
+        }
 
     }
+
+    //주간 보고서 분석
+    private Mono<Report> generateWeeklyReportAnalysis(Report report, List<Message>messageList){
+        return weeklyReportAnalysisService.generateWeeklyReportAnalysis(report, messageList)
+                .doOnSuccess(r -> log.info("주간 보고서 분석 완료: 보고서 ID {}", r.getId()))
+                .doOnError(e -> log.error("주간 보고서 분석 중 오류 발생", e));
+    }
+
 
     //PENDING 상태의 빈 보고서가 없으면 -> 해당 주의 주간 보고서 생성
     @Transactional

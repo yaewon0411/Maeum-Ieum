@@ -51,33 +51,33 @@ class ReportGenerationSchedulerTest {
     private ReportService reportService;
     @Autowired
     private EntityManager em;
-    private LocalDateTime today;
+    private LocalDateTime today = LocalDateTime.now();
 
     @Autowired
     private JobRepository jobRepository;
 
 
-    @BeforeEach
-    @Transactional
-    @Rollback
-    void setUp(){
-        //reportRepository.deleteAll();
-        today = LocalDateTime.now();
-//        Report report = reportRepository.findById(2L).orElse(null);
-//        report.setStartDate(today.minusWeeks(1));
-
-        Elderly elderlyC = em.createQuery("select e from Elderly e where e.id = :id", Elderly.class)
-                .setParameter("id", 33L)
-                .getSingleResult();
-
-        Report oldReport = Report.builder()
-                .elderly(elderlyC)
-                .reportType(ReportType.MONTHLY)
-                .reportStatus(ReportStatus.PENDING)
-                .startDate(today.minusMonths(1))
-                .build();
-        reportRepository.save(oldReport);
-    }
+//    @BeforeEach
+//    @Transactional
+//    @Rollback
+//    void setUp(){
+//        //reportRepository.deleteAll();
+//        //today = LocalDateTime.now();
+////        Report report = reportRepository.findById(2L).orElse(null);
+////        report.setStartDate(today.minusWeeks(1));
+//
+//        Elderly elderlyC = em.createQuery("select e from Elderly e where e.id = :id", Elderly.class)
+//                .setParameter("id", 65L)
+//                .getSingleResult();
+//
+//        Report oldReport = Report.builder()
+//                .elderly(elderlyC)
+//                .reportType(ReportType.MONTHLY)
+//                .reportStatus(ReportStatus.PENDING)
+//                .startDate(today.minusMonths(1))
+//                .build();
+//        reportRepository.save(oldReport);
+//    }
 
     @Test
     @Rollback
@@ -85,7 +85,7 @@ class ReportGenerationSchedulerTest {
     void testCreateWeeklyEmptyReports() {
         // 시나리오 1: 유저 A는 이미 PENDING 상태의 보고서가 있음
         Elderly elderlyA = em.createQuery("select e from Elderly e where e.id = :id", Elderly.class)
-                .setParameter("id", 1L)
+                .setParameter("id", 65L)
                 .getSingleResult();
         elderlyA.modifyReportDay(today.getDayOfWeek());
 

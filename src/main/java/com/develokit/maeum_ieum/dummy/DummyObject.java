@@ -27,6 +27,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DummyObject {
+    protected Report emptyReport(Elderly elderly, ReportType reportType){
+        return Report.builder()
+                .elderly(elderly)
+                .reportType(reportType)
+                .reportStatus(ReportStatus.PENDING)
+                .build();
+    }
 
     protected EmergencyRequest mockEmergencyRequest(Elderly elderly, Caregiver caregiver){
         return EmergencyRequest.builder().elderly(elderly).caregiver(caregiver).emergencyType(EmergencyType.CAREGIVER_NOTIFY).build();
