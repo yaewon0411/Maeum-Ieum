@@ -5,7 +5,6 @@ import com.develokit.maeum_ieum.domain.report.ReportRepository;
 import com.develokit.maeum_ieum.domain.user.caregiver.Caregiver;
 import com.develokit.maeum_ieum.domain.user.elderly.Elderly;
 import com.develokit.maeum_ieum.domain.user.elderly.ElderlyRepository;
-import com.develokit.maeum_ieum.dto.report.RespDto;
 import com.develokit.maeum_ieum.dummy.DummyObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,9 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,7 +49,7 @@ class ReportServiceTest extends DummyObject {
         when(elderlyRepository.findById(elderlyId)).thenReturn(Optional.of(elderly));
         when(reportRepository.findById(any())).thenReturn(Optional.of(report));
 
-        WeeklyReportQuantitativeAnalysisRespDto result = reportService.getWeeklyReportQuantitativeAnalysis(elderlyId, report.getId());
+        WeeklyReportAnalysisRespDto result = reportService.getWeeklyReportQuantitativeAnalysis(elderlyId, report.getId());
 
         String response = new ObjectMapper().writeValueAsString(result);
         System.out.println("response = " + response);
