@@ -2,13 +2,106 @@ package com.develokit.maeum_ieum.dto.report;
 
 import com.develokit.maeum_ieum.domain.report.Report;
 import com.develokit.maeum_ieum.util.CustomUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 public class RespDto {
+
+    @Getter
+    @NoArgsConstructor
+    @Schema(description = "보고서 정량적 평가 지표")
+    @ToString
+    public static class QuantitativeAnalysis {
+
+        @JsonProperty("healthStatusIndicator")
+        private String healthStatusIndicator;
+
+        @JsonProperty("activityLevelIndicator")
+        private String activityLevelIndicator;
+
+        @JsonProperty("cognitiveFunctionIndicator")
+        private String cognitiveFunctionIndicator;
+
+        @JsonProperty("lifeSatisfactionIndicator")
+        private String lifeSatisfactionIndicator;
+
+        @JsonProperty("psychologicalStabilityIndicator")
+        private String psychologicalStabilityIndicator;
+
+        @JsonProperty("socialConnectivityIndicator")
+        private String socialConnectivityIndicator;
+
+        @JsonProperty("supportNeedsIndicator")
+        private String supportNeedsIndicator;
+    }
+
+    @NoArgsConstructor
+    @Getter
+    @Schema(description = "주간 보고서 정량적 평가 조회 반환 DTO")
+    public static class WeeklyReportQuantitativeAnalysisRespDto{
+        private static final Gson gson = new Gson();
+
+        private static final ObjectMapper om = new ObjectMapper();
+        private static final Logger log = LoggerFactory.getLogger(WeeklyReportQuantitativeAnalysisRespDto.class);
+
+        @Schema(description = "보고서 메모")
+        private String memo;
+
+        @Schema(description = "건강 상태 지표")
+        private String healthStatus;
+
+        @Schema(description = "활동 수준 지표")
+        private String activityLevel;
+
+        @Schema(description = "인지 기능 지표")
+        private String cognitiveFunction;
+
+        @Schema(description = "생활 만족도 지표")
+        private String lifeSatisfaction;
+
+        @Schema(description = "심리적 안정 지표")
+        private String psychologicalStability;
+
+        @Schema(description = "사회적 연결성 지표")
+        private String socialConnectivity;
+
+        @Schema(description = "필요 지원 지표")
+        private String supportNeeds;
+
+        @Schema(description = "정량적 분석 결과")
+        private QuantitativeAnalysis quantitativeAnalysis;
+
+        public WeeklyReportQuantitativeAnalysisRespDto(Report report){
+            this.memo = report.getMemo();
+            this.healthStatus = report.getHealthStatusIndicator().getDescription();
+            this.activityLevel = report.getActivityLevelIndicator().getDescription();
+            this.cognitiveFunction = report.getCognitiveFunctionIndicator().getDescription();
+            this.lifeSatisfaction = report.getLifeSatisfactionIndicator().getDescription();
+            this.psychologicalStability = report.getPsychologicalStabilityIndicator().getDescription();
+            this.socialConnectivity = report.getSocialConnectivityIndicator().getDescription();
+            this.supportNeeds = report.getSupportNeedsIndicator().getDescription();
+                // JSON 문자열을 Map으로 파싱
+            try {
+                this.quantitativeAnalysis = gson.fromJson(report.getQuantitativeAnalysis(), QuantitativeAnalysis.class);
+            }catch(JsonSyntaxException e){
+                log.error("JSON 파싱 중 오류 발생: 구문 오류 ", e);
+            }
+
+        }
+    }
 
     @NoArgsConstructor
     @Getter
