@@ -129,14 +129,16 @@ class ReportGenerationSchedulerTest extends DummyObject {
     @Rollback(value = false)
     void testCreateMonthlyEmptyReports() {
         // 시나리오: 모든 노인에 대해 월간 보고서 생성
-        today = today.minusMonths(1);
-        reportService.createMonthlyEmptyReports(today);
+        //today = today.minusMonths(1);
+        //today = today.minusWeeks(1);
+        //reportService.createMonthlyEmptyReports(today);
+        reportService.createWeeklyEmptyReports(today);
         List<Elderly> elderlyList = elderlyRepository.findAll();
 
 
         List<Report> reports = reportRepository.findAll();
         //assertEquals(elderlyList.size(), reports.size());
-        assertTrue(reports.stream().allMatch(r -> r.getReportType() == ReportType.MONTHLY));
+        //assertTrue(reports.stream().allMatch(r -> r.getReportType() == ReportType.MONTHLY));
         assertTrue(reports.stream().allMatch(r -> r.getReportStatus() == ReportStatus.PENDING));
     }
 

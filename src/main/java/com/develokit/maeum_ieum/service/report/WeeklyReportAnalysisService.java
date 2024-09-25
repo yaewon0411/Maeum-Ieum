@@ -27,6 +27,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.develokit.maeum_ieum.dto.openAi.run.ReqDto.*;
@@ -39,6 +41,8 @@ public class WeeklyReportAnalysisService {
     private final String threadId = "thread_PMCIQ4bqvhuBpcEM4nw2lArK";
 
     private LocalDateTime threadCreatedDate;
+    private static final Pattern SUMMARY_PATTERN = Pattern.compile("### 종합 평가\\s*(.*?)\\s*$", Pattern.DOTALL);
+
 
     private final WebClient webClient;
     private final ReportRepository reportRepository;
@@ -61,6 +65,14 @@ public class WeeklyReportAnalysisService {
                 .flatMap(this::parseAnalysisResult)
                 .publishOn(Schedulers.boundedElastic())
                 .map(analysisResult -> {
+
+                    // Analysis 결과에서 Summary 추출(지표 상수가 아님. 정성적 평가로 들어갈것)
+                    IndicatorResult summaryResult = analysisResult.get("Summary");
+                    System.out.println("summaryResult = " + summaryResult);
+                    if (summaryResult != null) {
+                        report.setQualitativeAnalysis(summaryResult.getReason()); // 종합 평가 저장
+                        analysisResult.remove("Summary"); // 종합 평가 Map에서 삭제
+                    }
                     updateReportWithAnalysis(report, analysisResult);
                     return reportRepository.save(report);
                 })
@@ -110,6 +122,12 @@ public class WeeklyReportAnalysisService {
             // 각 섹션을 "**이유:**"를 기준으로 분리
             String[] sections = analysisResult.split("\\n\\n");
 
+            Matcher summaryMatcher = SUMMARY_PATTERN.matcher(analysisResult);
+            if (summaryMatcher.find()) {
+                String summary = summaryMatcher.group(1).trim();// 종합 평가 내용 반환
+                resultMap.put("Summary", new IndicatorResult("종합 평가", summary));
+            }
+
             for (String section : sections) {
                 if (section.contains("**")) {
                     // 지표와 값을 추출하는 부분 (지표명과 값을 ":" 기준으로 분리)
@@ -148,10 +166,10 @@ public class WeeklyReportAnalysisService {
         updateIndicator(report, SupportNeedsIndicator.class, analysisResult.get("SupportNeedsIndicator"));
 
         // 정성적 분석을 위한 문자열 생성
-        String qualitativeAnalysis = analysisResult.entrySet().stream()
-                .map(entry -> entry.getKey() + ": " + entry.getValue().getReason())
-                .collect(Collectors.joining("\n"));
-        report.setQualitativeAnalysis(qualitativeAnalysis);
+//        String qualitativeAnalysis = analysisResult.entrySet().stream()
+//                .map(entry -> entry.getKey() + ": " + entry.getValue().getReason())
+//                .collect(Collectors.joining("\n"));
+//        report.setQualitativeAnalysis(qualitativeAnalysis);
     }
 
     private <T extends Enum<T> & ReportIndicator> void updateIndicator(Report report, Class<T> indicatorClass, IndicatorResult result) {
