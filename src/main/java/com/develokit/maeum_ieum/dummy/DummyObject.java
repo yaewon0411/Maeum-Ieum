@@ -42,7 +42,7 @@ public class DummyObject {
     protected Report mockMonthlyReport(Elderly elderly) throws JsonProcessingException {
 
         LocalDateTime endDate = LocalDateTime.now();
-        LocalDateTime startDate = endDate.minusMonths(1);
+        LocalDate startDate = endDate.minusMonths(1).toLocalDate();
 
         Report report = Report.builder()
                 .reportType(ReportType.MONTHLY)
@@ -73,7 +73,7 @@ public class DummyObject {
     protected Report mockWeeklyReport(Elderly elderly) throws JsonProcessingException {
 
         LocalDateTime endDate= LocalDateTime.now();
-        LocalDateTime startDate = endDate.minusWeeks(1);
+        LocalDate startDate = endDate.minusWeeks(1).toLocalDate();
 
         Report report = Report.builder()
                 .reportType(ReportType.WEEKLY)

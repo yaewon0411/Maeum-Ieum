@@ -130,6 +130,12 @@ public class ElderlyController implements ElderlyControllerDocs {
                 .map(result -> new ResponseEntity<>(ApiUtil.success(result),HttpStatus.CREATED));
     }
 
+    @PostMapping("/reports/m")
+    public Mono<?> createMonthlyReports(){
+        return reportService.generateMonthly()
+                .map(result -> new ResponseEntity<>(ApiUtil.success(result),HttpStatus.CREATED));
+    }
+
 
 
 

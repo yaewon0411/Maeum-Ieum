@@ -11,6 +11,7 @@ import com.develokit.maeum_ieum.domain.user.elderly.Elderly;
 import com.develokit.maeum_ieum.domain.user.elderly.ElderlyRepository;
 import com.develokit.maeum_ieum.ex.CustomApiException;
 import com.develokit.maeum_ieum.service.OpenAiService;
+import com.develokit.maeum_ieum.util.CustomUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonSyntaxException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,6 +42,7 @@ public class ReportService {
     private final ElderlyRepository elderlyRepository;
     private final MessageRepository messageRepository;
     private final WeeklyReportAnalysisService weeklyReportAnalysisService;
+    private final MonthlyReportAnalysisService monthlyReportAnalysisService;
     private final Logger log = LoggerFactory.getLogger(ReportService.class);
 
 
@@ -93,9 +96,6 @@ public class ReportService {
             throw new CustomApiException("주간 보고서 정량적 분석 결과 파싱 중 오류 발생", HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-
 
 
     //보고서 메모 작성하는 기능
@@ -177,44 +177,60 @@ public class ReportService {
                 .block(Duration.ofMinutes(30)); // 타임아웃 설정
     }
 
+    //========================컨트롤러로 테스트하기 위한 용도===============================================================
     public Mono<Report> generate(){
-
         return Mono.fromCallable(() -> reportRepository.findById(121L).get())
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMap(this::generateReportContent);
     }
 
+    public Mono<Report>generateMonthly(){
+        return Mono.fromCallable(() -> reportRepository.findById(122L).get())
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(this::generateReportContent);
+    }
+    //==============================================================================================
+
     //지표에 따른 보고서 생성하기
     public Mono<Report> generateReportContent(Report report) {
-        Elderly elderly = report.getElderly();
-        List<Message> messageList = messageRepository.findByElderly(elderly);
 
-        if (messageList.isEmpty()) {
-            //대화 내역 없는 거 어떻게 처리할 지
-        }
+        Elderly elderlyPS = elderlyRepository.findById(report.getElderly().getId()).orElseThrow(
+                () -> new CustomApiException("존재하지 않는 사용자의 보고서 분석이 작동되었습니다", HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR)
+        );
+
 
         if (report.getReportType().equals(ReportType.WEEKLY)) {
+            List<Message> messageList = messageRepository.findByElderly(elderlyPS);
+
+            if (messageList.isEmpty()) {
+                //대화 내역 없는 거 어떻게 처리할 지
+            }
+
             return generateWeeklyReportAnalysis(report, messageList)
                     .flatMap(Mono::just)
-                    .doOnError(e -> log.error("보고서 생성 중 오류 발생", e));
+                    .doOnError(e -> log.error("주간 보고서 분석 중 오류 발생", e));
         }
         else{
-            //어쩌구저쩌구
-            //report.setQualitativeAnalysis("정성적 보고서 분석 결과");
-            /*
-            * 월간 보고서는
-            * 월간 보고서가 생성된 달에 만들어진 주간 보고서를 사용해서
-            * 종합적인 평가를 내려달라고 부탁할 생각
-            *
-            * */
-            //아래는 에러 막기용으로 추가
-            return Mono.just(report)
-                    .map(r -> {
-                        r.setQualitativeAnalysis("정성적 보고서 분석 결과..");
-                        return r;
-                    });
+            return generateMonthlyReportAnalysis(report, elderlyPS)
+                    .flatMap(Mono::just)
+                    .doOnError(e -> log.error("월간 보고서 분석 중 오류 발생", e));
         }
+    }
+    //월간 보고서 분석
+    private Mono<Report> generateMonthlyReportAnalysis(Report report, Elderly elderly){
+        //먼저 report와 같은 달에 생성된 주간 보고서를 찾음
+        LocalDate startOfMonth = CustomUtil.getStartOfMonth(report.getStartDate());
+        LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
 
+        //주간 보고서 객체를 MonthlyReportAnalysisService에 넘기기
+        return Mono.fromCallable(() ->
+                        reportRepository.findByReportTypeAndReportStatusAndYearAndMonth(
+                elderly, ReportType.WEEKLY, ReportStatus.COMPLETED,
+                startOfMonth, startOfNextMonth
+        )).subscribeOn(Schedulers.boundedElastic())
+                .flatMap(weeklyReportList -> monthlyReportAnalysisService.generateMonthlyReportAnalysis(report, weeklyReportList))
+                .doOnSuccess(r -> log.info("월간 보고서 분석 완료: 보고서 ID {}", r.getId()))
+                .doOnError(e -> log.error("월간 보고서 분석 중 오류 발생", e));
     }
 
     //주간 보고서 분석
@@ -227,8 +243,8 @@ public class ReportService {
 
     //PENDING 상태의 빈 보고서가 없으면 -> 해당 주의 주간 보고서 생성
     @Transactional
-    public void createWeeklyEmptyReports(LocalDateTime date) {
-        LocalDateTime oneWeekAgo = date.minusWeeks(1);
+    public void createWeeklyEmptyReports(LocalDate date) {
+        LocalDate oneWeekAgo = date.minusWeeks(1);
 
         List<Elderly> eligibleElderly = elderlyRepository.findByReportDay(date.getDayOfWeek());
         for (Elderly elderly : eligibleElderly) {
@@ -247,9 +263,9 @@ public class ReportService {
     }
 
     @Transactional
-    public void createMonthlyEmptyReports(LocalDateTime date) {
+    public void createMonthlyEmptyReports(LocalDate date) {
         // 한 달 전 날짜 계산
-        LocalDateTime oneMonthAgo = date.minusMonths(1);
+        LocalDate oneMonthAgo = date.minusMonths(1);
 
         // 모든 노인에 대해 월간 보고서 생성 (또는 특정 조건의 노인만 선택할 수 있음)
         List<Elderly> allElderly = elderlyRepository.findAll();

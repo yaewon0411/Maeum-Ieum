@@ -1,18 +1,52 @@
 package com.develokit.maeum_ieum.domain.report;
 
 import com.develokit.maeum_ieum.dto.report.RespDto;
+import com.develokit.maeum_ieum.service.report.MonthlyReportAnalysisService;
 import com.develokit.maeum_ieum.service.report.WeeklyReportAnalysisService;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.develokit.maeum_ieum.dto.report.RespDto.*;
 import static com.develokit.maeum_ieum.service.report.WeeklyReportAnalysisService.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReportTest {
+
+    String monthlyResponse =
+            "분석 완료: **월간 평가 지표 및 이유:**\n" +
+                    "\n" +
+                    "**HealthStatusIndicator: FAIR**\n" +
+                    "이유: 첫 두 주 동안 건강에 특별한 문제가 없었으나, 마지막 주에는 피로감을 호소하며 건강 상태가 약간 악화되었습니다. 건강 상태에 변동이 있었기 때문에 FAIR로 평가합니다.\n" +
+                    "\n" +
+                    "**ActivityLevelIndicator: FAIR**\n" +
+                    "이유: 첫 주와 마지막 주에는 활동 수준이 낮고 주로 실내에 머물렀지만, 두 번째 주에는 산책 등 신체 활동을 꾸준히 했습니다. 활동 수준이 변동되어 FAIR로 평가합니다.\n" +
+                    "\n" +
+                    "**CognitiveFunctionIndicator: GOOD**\n" +
+                    "이유: 첫 두 주 동안 명확하고 논리적인 답변을 제공했고, 마지막 주에는 약간의 혼동을 보였으나 전반적으로 인지 기능이 양호했습니다. 인지 기능이 대체로 유지되어 GOOD으로 평가합니다.\n" +
+                    "\n" +
+                    "**LifeSatisfactionIndicator: FAIR**\n" +
+                    "이유: 첫 주와 마지막 주에는 생활에 대한 특별한 만족감을 표현하지 않았고, 두 번째 주에만 만족감을 나타냈습니다. 전반적인 생활 만족도가 일관되지 않아 FAIR로 평가합니다.\n" +
+                    "\n" +
+                    "**PsychologicalStabilityIndicator: FAIR**\n" +
+                    "이유: 첫 주에는 약간의 스트레스를 표현했고, 마지막 주에는 불안과 우울감을 나타냈습니다. 두 번째 주에 심리적으로 안정되었으나 전반적으로 불안정한 경향이 있어 FAIR로 평가합니다.\n" +
+                    "\n" +
+                    "**SocialConnectivityIndicator: FAIR**\n" +
+                    "이유: 첫 두 주 동안 가족과 친구들과의 긍정적 상호작용이 있었으나, 마지막 주에는 거의 상호작용이 없었습니다. 사회적 연결성이 변동되었기 때문에 FAIR로 평가합니다.\n" +
+                    "\n" +
+                    "**SupportNeedsIndicator: GOOD**\n" +
+                    "이유: 첫 두 주 동안 대부분 독립적으로 생활할 수 있었고, 마지막 주에 약간의 외부 지원이 필요했으나 전적으로 의존하지는 않았습니다. 대체로 독립성을 유지하여 GOOD으로 평가합니다.\n" +
+                    "\n" +
+                    "---\n" +
+                    "\n" +
+                    "**종합 평가:** \n" +
+                    "노인의 건강 상태, 활동 수준, 인지 기능, 생활 만족도, 심리적 안정, 사회적 연결성이 한 달 동안 변동이 있었습니다. 특히 마지막 주에 건강과 심리 상태가 악화되는 경향이 보이므로, 주기적인 모니터링과 적절한 지원이 필요합니다. 첫 두 주는 안정적이었으나, 마지막 주에 불안정함이 두드러졌습니다. 한 달 동안의 데이터를 통해 더 나은 건강 관리와 사회적 연결성 유지 전략이 필요함을 시사합니다.\n";
+
+
 
     String response = "### HealthStatusIndicator: GOOD\n" +
             "**이유:** 노인은 건강 문제를 언급하지 않았으며, 그림 그리기 같은 활동을 하려고 합니다.\n" +
@@ -36,6 +70,37 @@ class ReportTest {
             "**이유:** 노인은 독립적으로 활동 계획을 세우고 실행할 수 있으며, 외부 지원이 필요하지 않아 보입니다.\n" +
             "\n" +
             "이를 바탕으로 노인의 상태를 종합적으로 이해하고 필요한 지원 여부를 결정하는 데 도움이 될 수 있습니다.\n";
+
+    private static final Pattern PATTERN = Pattern.compile("\\*\\*(.*?)\\: \\s*(.*?)\\s*\\*\\*\\s*이유: (.*?)\\n(?=\\n|$)");
+
+    private static final Pattern SUMMARY_PATTERN = Pattern.compile("\\*\\*종합 평가\\:\\*\\*\\s*(.*?)\\s*(?=\\n|$)", Pattern.DOTALL);
+
+
+    @Test
+    void 월간보고서파싱테스트(){
+        Map<String, IndicatorResult> resultMap = new HashMap<>();
+
+        Matcher matcher = PATTERN.matcher(monthlyResponse);
+
+        // 각 지표와 이유 추출
+        while (matcher.find()) {
+            String indicator = matcher.group(1).trim();
+            String value = matcher.group(2).trim();
+            String reason = matcher.group(3).trim();
+            // 지표명과 값이 제대로 분리된 상태로 저장
+            System.out.println("indicator = " + indicator);
+            System.out.println("value = " + value);
+            System.out.println("reason = " + reason);
+            System.out.println();
+            resultMap.put(indicator, new IndicatorResult(value, reason));
+        }
+        // 종합 평가 추출
+        Matcher summaryMatcher = SUMMARY_PATTERN.matcher(monthlyResponse);
+        if (summaryMatcher.find()) {
+            String summary = summaryMatcher.group(1).trim();
+            System.out.println("summary = " + summary);
+        }
+    }
 
     @Test
     void 파싱테스트(){
