@@ -209,7 +209,6 @@ public class ReportService {
             if (messageList.isEmpty()) {
                 //TODO 대화 내역이 없다고 집어넣기
                 report.setReportStatus(ReportStatus.COMPLETED);
-                report.setMemo("AI 어시스턴트와 대화를 진행하지 않으셨습니다");
                 report.updateEndDate(LocalDateTime.now());
                 return Mono.just(report);
             }
