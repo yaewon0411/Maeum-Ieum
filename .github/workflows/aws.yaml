@@ -25,10 +25,15 @@ jobs:
         distribution: 'temurin'
 
     - name: Set up application.yaml
-      run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yaml
+      run: |
+        mkdir -p src/main/resources
+        echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yaml
 
-    - name: Build with Gradle
-      run: ./gradlew build
+    - name: Change gradlew permissions
+      run: chmod +x ./gradlew
+
+    - name: Build with Gradle Wrapper
+      run: ./gradlew clean build -x test
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{ env.DOCKER_IMAGE_NAME }}:latest
