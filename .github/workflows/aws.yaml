@@ -25,7 +25,9 @@ jobs:
         distribution: 'temurin'
 
     - name: Set up application.yaml
-      run: echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yaml
+      run: |
+        mkdir -p src/main/resources
+        echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yaml
 
     - name: Build with Gradle
       run: ./gradlew build
