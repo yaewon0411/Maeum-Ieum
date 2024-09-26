@@ -40,5 +40,3 @@ resources/
 
 JwtVo.java
 
-WeeklyReportAnalysisService.java
-MonthlyReportAnalysisService.java
