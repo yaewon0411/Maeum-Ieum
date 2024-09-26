@@ -200,10 +200,18 @@ public class ReportService {
 
 
         if (report.getReportType().equals(ReportType.WEEKLY)) {
-            List<Message> messageList = messageRepository.findByElderly(elderlyPS);
+            LocalDate startDate = report.getStartDate();
+            LocalDateTime startDateTime = startDate.atStartOfDay();
+            LocalDateTime today = LocalDateTime.now();
+
+            List<Message> messageList = messageRepository.findByElderlyWithTimeZone(elderlyPS, startDateTime, today);
 
             if (messageList.isEmpty()) {
-                //대화 내역 없는 거 어떻게 처리할 지
+                //TODO 대화 내역이 없다고 집어넣기
+                report.setReportStatus(ReportStatus.COMPLETED);
+                report.setMemo("AI 어시스턴트와 대화를 진행하지 않으셨습니다");
+                report.updateEndDate(LocalDateTime.now());
+                return Mono.just(report);
             }
 
             return generateWeeklyReportAnalysis(report, messageList)
@@ -249,7 +257,7 @@ public class ReportService {
         List<Elderly> eligibleElderly = elderlyRepository.findByReportDay(date.getDayOfWeek());
         for (Elderly elderly : eligibleElderly) {
             if (!reportRepository.existsByElderlyAndReportTypeAndReportStatusAndStartDateInLastWeek(
-                    elderly, ReportType.WEEKLY, ReportStatus.PENDING, oneWeekAgo, date)) {
+                    elderly, ReportType.WEEKLY, ReportStatus.PENDING, date.getDayOfWeek())) {
                 Report newReport = Report.builder()
                         .elderly(elderly)
                         .reportType(ReportType.WEEKLY)
@@ -271,7 +279,7 @@ public class ReportService {
         List<Elderly> allElderly = elderlyRepository.findAll();
         for (Elderly elderly : allElderly) {
             if (!reportRepository.existsByElderlyAndReportTypeAndReportStatusAndStartDateGreaterThanEqual(
-                    elderly, ReportType.MONTHLY, ReportStatus.PENDING, oneMonthAgo, date)) {
+                    elderly, ReportType.MONTHLY, ReportStatus.PENDING)) {
                 Report newReport = Report.builder()
                         .elderly(elderly)
                         .reportType(ReportType.MONTHLY)
