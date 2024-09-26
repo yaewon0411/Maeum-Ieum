@@ -64,4 +64,4 @@ jobs:
             sudo docker rm $CONTAINER_ID
           fi
           sudo docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
-          sudo docker run --name maeum-ieum-container -d -p 8081:8081 -e SPRING_PROFILES_ACTIVE=prod -e TZ=Asia/Seoul ${{ env.DOCKER_IMAGE_NAME }}:latest
+          sudo docker run --name maeum -d -p 8081:8081 -e SPRING_PROFILES_ACTIVE=prod -e TZ=Asia/Seoul ${{ env.DOCKER_IMAGE_NAME }}:latest
