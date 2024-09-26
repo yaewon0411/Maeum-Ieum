@@ -74,7 +74,6 @@ public class EmergencyRequestService {
     //알림 화면 조회
     public EmergencyRequestListRespDto getEmergencyRequestList(String username, int page, int size){
 
-        System.out.println("username = " + username);
         //요양사 조회
         Caregiver caregiverPS = careGiverRepository.findByUsername(username).orElseThrow(
                 () -> new CustomApiException("등록되지 않은 요양사 사용자입니다", HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND)
