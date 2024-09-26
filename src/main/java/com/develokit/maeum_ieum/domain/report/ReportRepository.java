@@ -21,8 +21,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             "where r.elderly = :elderly " +
             "and r.reportStatus = :reportStatus " +
             "and r.reportType = :reportType " +
-            "and r.id <= :cursor " +
-            "order by r.id desc")
+            "and r.id <= :cursor ")
     List<Report> findWeeklyReportByElderly(@Param("elderly") Elderly elderly,
                                            @Param("reportStatus")ReportStatus reportStatus,
                                            @Param("reportType")ReportType reportType,
@@ -33,8 +32,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             "where r.elderly = :elderly " +
             "and r.reportStatus = :reportStatus " +
             "and r.reportType = :reportType " +
-            "and r.id <= :cursor " +
-            "order by r.id desc")
+            "and r.id <= :cursor ")
     List<Report> findMonthlyReportByElderly(@Param("elderly") Elderly elderly,
                                             @Param("reportStatus")ReportStatus reportStatus,
                                             @Param("reportType")ReportType reportType,

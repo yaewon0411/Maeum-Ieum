@@ -132,7 +132,7 @@ public class ReportService {
         if(cursor==null || cursor.equals(0L)) cursor = Long.MAX_VALUE;
 
         //limit+1만큼 조회해야 함!!!!
-        PageRequest pageRequest = PageRequest.of(0, limit + 1, Sort.by("id").descending());
+        PageRequest pageRequest = PageRequest.of(0, limit + 1, Sort.by("endDate").descending());
 
         List<Report> reportList = reportRepository.findWeeklyReportByElderly(elderlyPS,ReportStatus.COMPLETED, ReportType.WEEKLY, cursor, pageRequest);
 
@@ -157,7 +157,7 @@ public class ReportService {
         //초기 cursor가 설정 안되면 max_value로 설정
         if(cursor==null || cursor.equals(0L)) cursor = Long.MAX_VALUE;
 
-        PageRequest pageRequest = PageRequest.of(0, limit + 1, Sort.by("id").descending());
+        PageRequest pageRequest = PageRequest.of(0, limit + 1, Sort.by("endDate").descending());
 
         List<Report> reportList = reportRepository.findMonthlyReportByElderly(elderlyPS, ReportStatus.COMPLETED, ReportType.MONTHLY, cursor, pageRequest);
 
