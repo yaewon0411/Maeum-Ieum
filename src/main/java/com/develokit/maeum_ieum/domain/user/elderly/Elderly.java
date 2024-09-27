@@ -91,6 +91,10 @@ public class Elderly extends User {
         caregiver.getElderlyList().add(this);
     }
 
+    public void updateOrganizationByElderly(String organization){
+        super.updateOrganizationByCaregiver(organization);
+    }
+
     public void updateElderlyInfo(ElderlyModifyReqDto elderlyModifyReqDto){
         super.updateCommonInfo(elderlyModifyReqDto.getName(),
                 elderlyModifyReqDto.getGender(),

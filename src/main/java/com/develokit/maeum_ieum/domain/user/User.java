@@ -58,6 +58,10 @@ public abstract class User extends BaseEntity {
         if(contact != null) this.contact = contact;
     }
 
+    protected void updateOrganizationByCaregiver(String organization){
+        this.organization = organization;
+    }
+
     protected void updateImg(String imgUrl){
         this.imgUrl = imgUrl;
     }

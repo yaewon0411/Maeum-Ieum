@@ -135,6 +135,19 @@ public class CaregiverService {
         );
 
         caregiverPS.updateCaregiverInfo(caregiverModifyReqDto);
+
+        if(caregiverModifyReqDto.getOrganization() != null){
+            Caregiver caregiverWithElderly = careGiverRepository.findByUsernameWithElderlys(username)
+                    .orElseThrow(
+                            () -> new CustomApiException("서버 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR)
+                    );
+
+            //요양사가 소속 기관 바꾸면 관리 노인 사용자 소속 기관도 변경
+            caregiverWithElderly.getElderlyList().forEach(elderly -> {
+                elderly.updateOrganizationByElderly(caregiverModifyReqDto.getOrganization());
+            });
+
+        }
         return new CaregiverModifyRespDto(caregiverPS);
     }
 
