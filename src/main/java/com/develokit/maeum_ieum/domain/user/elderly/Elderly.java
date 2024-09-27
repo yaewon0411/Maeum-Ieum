@@ -104,6 +104,8 @@ public class Elderly extends User {
             this.emergencyContactInfo.emergencyName = elderlyModifyReqDto.getEmergencyName();
         if(elderlyModifyReqDto.getEmergencyContact() != null)
             this.emergencyContactInfo.emergencyContact = elderlyModifyReqDto.getEmergencyContact();
+        if(elderlyModifyReqDto.getRelationship() != null)
+            this.emergencyContactInfo.relationship = elderlyModifyReqDto.getRelationship();
     }
     public void updateImg(String imgUrl){
         super.updateImg(imgUrl);
