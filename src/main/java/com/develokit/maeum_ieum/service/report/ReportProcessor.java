@@ -37,6 +37,7 @@ public class ReportProcessor implements ItemProcessor<Report, ProcessedReport> {
                 return new ProcessedReport(report, false);
                 //return null;
             }
+
             //보고서 상태 변경: 분석 진행 중 -> 분석
 
             LocalDateTime today = LocalDateTime.now();

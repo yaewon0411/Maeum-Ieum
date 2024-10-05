@@ -244,14 +244,26 @@ public class ReportService {
                 .doOnSuccess(r -> {
                     log.info("월간 보고서 분석 완료: 보고서 ID {}", r != null ? r.getId() : "null");
                 })
-                .doOnError(e -> log.error("월간 보고서 분석 중 오류 발생", e));
+                .doOnError(e -> {
+                    log.error("월간 보고서 분석 중 오류 발생", e);
+                    if (report != null) {
+                        //report.setReportStatus(ReportStatus.ERROR); 어케 처리하냐
+                    }
+                });
     }
 
     //주간 보고서 분석
     private Mono<Report> generateWeeklyReportAnalysis(Report report, List<Message>messageList){
         return weeklyReportAnalysisService.generateWeeklyReportAnalysis(report, messageList)
-                .doOnSuccess(r -> log.info("주간 보고서 분석 완료: 보고서 ID {}", r.getId()))
-                .doOnError(e -> log.error("주간 보고서 분석 중 오류 발생", e));
+                .doOnSuccess(r -> {
+                    log.info("주간 보고서 분석 완료: 보고서 ID {}", r != null ? r.getId() : "null");
+                })
+                .doOnError(e -> {
+                    log.error("주간 보고서 분석 중 오류 발생", e);
+                    if (report != null) {
+                       // report.setReportStatus(ReportStatus.ERROR); 이대로 할지 아니면 배치에서 할지
+                    }
+                });
     }
 
 

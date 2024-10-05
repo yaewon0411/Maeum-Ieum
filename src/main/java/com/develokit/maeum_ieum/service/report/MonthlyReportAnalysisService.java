@@ -136,9 +136,6 @@ public class MonthlyReportAnalysisService {
                         JsonNode contentArray = rootNode.path("content");
                         if (!contentArray.isEmpty()) {
                             JsonNode textNode = contentArray.get(0).path("text");
-
-                            System.out.println("textNode.path(\"value\").toString() = " + textNode.path("value").toString());
-                            
                             return Mono.just(textNode.path("value").asText());
                         }
                         log.warn("분석 결과에서 content를 찾을 수 없습니다");
